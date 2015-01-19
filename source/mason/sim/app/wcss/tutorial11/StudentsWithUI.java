@@ -56,34 +56,31 @@ public class StudentsWithUI extends GUIState
         setupPortrayals();
         }
 
-    public void setupPortrayals()
-        {
+    public void setupPortrayals() {
         Students students = (Students) state;
-        
+
         // tell the portrayals what to portray and how to portray them
-        yardPortrayal.setField( students.yard );
+        yardPortrayal.setField(students.yard);
         yardPortrayal.setPortrayalForAll(
-            new MovablePortrayal2D(
-                new CircledPortrayal2D(
-                    new LabelledPortrayal2D(
-                        new OvalPortrayal2D()
-                            {
-                            public void draw(Object object, Graphics2D graphics, DrawInfo2D info)
-                                {
-                                Student student = (Student)object;
+                new MovablePortrayal2D(
+                        new CircledPortrayal2D(
+                                new LabelledPortrayal2D(
+                                        new OvalPortrayal2D() {
+                                            public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
+                                                Student student = (Student) object;
 
-                                int agitationShade = (int) (student.getAgitation() * 255 / 10.0);
-                                if (agitationShade > 255) agitationShade = 255;
-                                paint = new Color(agitationShade, 0, 255 - agitationShade);
-                                super.draw(object, graphics, info);
-                                }
-                            }, 
-                        5.0, null, Color.black, true),
-                    0, 5.0, Color.green, true)));
-                                                
+                                                int agitationShade = (int) (student.getAgitation() * 255 / 10.0);
+                                                if (agitationShade > 255) {
+                                                    agitationShade = 255;
+                                                }
+                                                paint = new Color(agitationShade, 0, 255 - agitationShade);
+                                                super.draw(object, graphics, info);
+                                            }
+                                        },
+                                        5.0, null, Color.black, true),
+                                0, 5.0, Color.green, true)));
 
-        
-        buddiesPortrayal.setField( new SpatialNetwork2D( students.yard, students.buddies ) );
+        buddiesPortrayal.setField(new SpatialNetwork2D(students.yard, students.buddies));
         buddiesPortrayal.setPortrayalForAll(new SimpleEdgePortrayal2D());
 
         // reschedule the displayer
@@ -92,7 +89,7 @@ public class StudentsWithUI extends GUIState
 
         // redraw the display
         display.repaint();
-        }
+    }
 
     public void init(Controller c)
         {
