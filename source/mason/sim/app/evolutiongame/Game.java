@@ -1,9 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package sim.app.evolutiongame;
+
+import java.util.ArrayList;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -13,16 +10,21 @@ import sim.app.evolutiongame.Util.Pair;
  * This class will hold a payoff matrix/payoff matrices for a two player game.
  * As well, it will have some helper methods to find useful facts such as the
  * set of Nash Equilibrium in a game.
- * @author ben
+ * @author Ben Armstrong
  */
 public class Game
 {
-    /** List of payoff matrices. One for each player.
-     * Rows are strategies of that player, columns strategies of other player.
-     */
     private ArrayList<int[][]> payoffs;
-    /** Contains the set of Nash Equilibria for this game */
-    private HashSet<Pair<Integer, Integer>> equilibria;
+    
+    /**
+     * 
+     * @param payoffs List of payoff matrices, one for each player.
+     */
+    public Game(ArrayList<int[][]> payoffs)
+    {
+        this.payoffs = payoffs;
+    }
+    
     
     /**
      * 
