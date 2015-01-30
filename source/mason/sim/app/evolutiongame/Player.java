@@ -33,11 +33,34 @@ public class Player
         this.strategy = strategy;
     }
     
+    /**
+     * Gets the payoff played when this Player is matched against an opponent
+     * that plays strategy opp.
+     * @param opp An int representing the strategy played by the other Player.
+     * @return The payoff this player gets against strategy opp.
+     */
+    public int getPayoff(int opp)
+    {
+        //TODO: Add some validation here?
+        
+        return payoff[getStrategy()][opp];
+    }
+    
     public int getStrategy()
     {
         if(strategy == -1)
             strategy = findStrategy();
         return strategy;
+    }
+    
+    /**
+     * Be careful with using this method. Make sure we don't change a Player's 
+     * strategy when we really should create a new Player.
+     * @param strategy 
+     */
+    public void setStrategy(int strategy)
+    {
+        this.strategy = strategy;
     }
     
     /**

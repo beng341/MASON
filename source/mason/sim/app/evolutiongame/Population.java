@@ -1,5 +1,6 @@
 package sim.app.evolutiongame;
 
+import java.util.HashSet;
 import sim.engine.SimState;
 
 /**
@@ -9,10 +10,17 @@ import sim.engine.SimState;
  */
 public class Population extends SimState
 {
+    private HashSet<Player> players;
 
     public Population(long seed)
     {
         super(seed);
+        this.players = new HashSet<Player>();
     }
     
+    
+    public HashSet<Player> getPlayers()
+    {
+        return this.players;
+    }
 }

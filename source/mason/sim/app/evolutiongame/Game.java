@@ -16,6 +16,8 @@ public class Game
 {
     private ArrayList<int[][]> payoffs;
     
+    private HashSet<Pair<Integer, Integer>> equilibria;
+    
     /**
      * 
      * @param payoffs List of payoff matrices, one for each player.
@@ -25,16 +27,10 @@ public class Game
         this.payoffs = payoffs;
     }
     
-    
     /**
-     * 
-     * @param payoffs A list of payoff matrices. One for each player.
+     * Will calculate all pure strategy nash equilibrium. Currently untested.
+     * @return 
      */
-    public Game(ArrayList<int[][]> payoffs)
-    {
-        this.payoffs = payoffs;//should do some validation to ensure matrices are good sizes
-    }
-    
     public HashSet<Pair<Integer, Integer>> getNashEquilibria()
     {
         if(payoffs.size() != 2)
