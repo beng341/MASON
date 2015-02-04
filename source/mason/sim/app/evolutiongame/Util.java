@@ -27,19 +27,19 @@ public class Util {
             this.y = y;
         }
 
-        public X getX() {
+        public X getFirst() {
             return x;
         }
 
-        public void setX(X x) {
+        public void setFirst(X x) {
             this.x = x;
         }
 
-        public Y getY() {
+        public Y getSecond() {
             return y;
         }
 
-        public void setY(Y y) {
+        public void setSecond(Y y) {
             this.y = y;
         }
         
@@ -48,7 +48,7 @@ public class Util {
             if(!o.getClass().equals(this.getClass()))
                 return false;
             Pair<?,?> p = (Pair<?,?>)o;
-            if(p.getX().equals(this.getX()) && p.getY().equals(this.getY()))
+            if(p.getFirst().equals(this.getFirst()) && p.getSecond().equals(this.getSecond()))
                 return true;
             return false;
         }

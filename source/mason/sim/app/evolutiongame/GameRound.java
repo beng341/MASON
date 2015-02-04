@@ -3,6 +3,7 @@ package sim.app.evolutiongame;
 import ec.util.MersenneTwisterFast;
 import java.util.ArrayList;
 import java.util.HashSet;
+import sim.app.evolutiongame.Util.Pair;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 
@@ -36,9 +37,10 @@ public class GameRound implements Steppable
         ArrayList<Player> newPlayers = new ArrayList<>();
         MersenneTwisterFast random = pop.random;
         
+        //print a bunch of stuff about the current state of the population
         System.out.println("\nWelcome to a new generation.");
         ArrayList<Integer>strategyCount = new ArrayList<>();
-        for(int i = 0; i < pop.getMaxNumStrategies(); ++i)
+        for(int i = 0; i < PayoffMatrices.getMaxNumStrategies(); ++i)
             strategyCount.add(0);
         for(Player p: players)
         {
@@ -99,7 +101,8 @@ public class GameRound implements Steppable
     private ArrayList<Player> reproduce(Player p1, Player p2, int payoff1, int payoff2)
     {
         toAdd.clear();//should be faster than new
-        conversionReproduction(p1, p2, payoff1, payoff2);
+        //conversionReproduction(p1, p2, payoff1, payoff2);
+        utilityReproduction(p1, p2, payoff1, payoff2);
         
         return toAdd;
     }
