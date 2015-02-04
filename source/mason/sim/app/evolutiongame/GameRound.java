@@ -1,6 +1,7 @@
 package sim.app.evolutiongame;
 
 import ec.util.MersenneTwisterFast;
+import java.util.ArrayList;
 import java.util.HashSet;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -29,10 +30,28 @@ public class GameRound implements Steppable
     @Override
     public void step(SimState state)
     {
+        
         Population pop = (Population)state;
-        HashSet<Player> players = pop.getPlayers();
-        HashSet<Player> newPlayers = (HashSet<Player>) players.clone();
+        ArrayList<Player> players = pop.getPlayers();
+        ArrayList<Player> newPlayers = new ArrayList<>();
         MersenneTwisterFast random = pop.random;
+        
+        System.out.println("\nWelcome to a new generation.");
+        ArrayList<Integer>strategyCount = new ArrayList<>();
+        for(int i = 0; i < pop.getMaxNumStrategies(); ++i)
+            strategyCount.add(0);
+        for(Player p: players)
+        {
+            if(strategyCount.get(p.getStrategy()) == null)
+                strategyCount.set(p.getStrategy(), 0);
+            strategyCount.set(p.getStrategy(), strategyCount.get(p.getStrategy())+1);
+        }
+        for(int i = 0; i < strategyCount.size(); ++i)
+        {
+            //System.out.println("The proportion of players at strategy " + i + " is " + (strategyCount.get(i)*1.0)/players.size());
+            System.out.println("    The numbers of players at strategy " + i + " is " + strategyCount.get(i));
+        }
+        
         
         Player p1;
         Player p2;
@@ -40,12 +59,14 @@ public class GameRound implements Steppable
         //for now, have every player matched against another player (or, one unmatched if an odd number of players)
         while(players.size() > 1)
         {
-            //we need some way of quickly getting a randomly located Player.
-            //Perhaps using a HashMap is not the best idea since we need order
-            //before we can disrupt that order...
+            p1 = players.remove(random.nextInt(players.size()));
+            p2 = players.remove(random.nextInt(players.size()));
+            newPlayers.addAll(runMatch(p1, p2));
         }
+        if(players.size() == 1)//make sure we don't lose a player if there are an odd number of players
+            newPlayers.add(players.get(0));
         
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        pop.setPlayers(newPlayers);
     }
     
     /**
@@ -56,10 +77,10 @@ public class GameRound implements Steppable
      * @return A list of players to add to the population. Note that at this point
      * Player 1 and Player 2 have been removed from the population.
      */
-    private HashSet<Player> runMatch(Player p1, Player p2)
+    private ArrayList<Player> runMatch(Player p1, Player p2)
     {
-        int payoff1 = p1.getPayoff(p2.getStrategy());
-        int payoff2 = p2.getPayoff(p1.getStrategy());
+        int payoff1 = p1.getPayoff(p2.getStrategy());//find payoff to player 1
+        int payoff2 = p2.getPayoff(p1.getStrategy());//find payoff to player 2
         
         return reproduce(p1, p2, payoff1, payoff2);
     }
@@ -71,18 +92,44 @@ public class GameRound implements Steppable
      * @param p2
      * @param payoff1
      * @param payoff2
-     * @return A HashSet containing the winner and the loser converted to the 
+     * @return An ArrayList containing the winner and the loser converted to the 
      * strategy of the winner.
      */
-    private HashSet<Player> reproduce(Player p1, Player p2, int payoff1, int payoff2)
+    private ArrayList<Player> toAdd = new ArrayList<>();//apparently initializing to double capacity makes it faster
+    private ArrayList<Player> reproduce(Player p1, Player p2, int payoff1, int payoff2)
     {
-        HashSet<Player> toAdd = new HashSet<>(4);
+        toAdd.clear();//should be faster than new
+        conversionReproduction(p1, p2, payoff1, payoff2);
+        
+        return toAdd;
+    }
+    
+    /**
+     * Converts the losing player to the strategy of the winning player.
+     * @return 
+     */
+    public ArrayList<Player> conversionReproduction(Player p1, Player p2, int payoff1, int payoff2)
+    {
         if(payoff1 > payoff2)
             p2.setStrategy(p1.getStrategy());
         else
             p1.setStrategy(p2.getStrategy());
         toAdd.add(p1);
         toAdd.add(p2);
+        return toAdd;
+    }
+    
+    /**
+     * Kills the parents and adds a number of players equal to the payoff of
+     * each original player with the strategy of the player that earned that payoff.
+     * @return 
+     */
+    public ArrayList<Player> utilityReproduction(Player p1, Player p2, int payoff1, int payoff2)
+    {
+        for(int i = 0; i < payoff1; ++i)
+            toAdd.add(new Player(p1));
+        for(int i = 0; i < payoff2; ++i)
+            toAdd.add(new Player(p2));
         
         return toAdd;
     }

@@ -1,5 +1,7 @@
 package sim.app.evolutiongame;
 
+import ec.util.MersenneTwisterFast;
+
 /**
  * The base class for a player that plays a game. Games will be two-player so
  * each Player will always be matched up against another Player. The match ups
@@ -16,6 +18,8 @@ public class Player
      */
     private int strategy = -1;
     
+    private MersenneTwisterFast random;
+    
     /**
      * 
      * @param payoff Matrix representing payoff functions. This player gets the 
@@ -26,11 +30,19 @@ public class Player
     {
         this.payoff = payoff;
         this.strategy = findStrategy();
+        random = new MersenneTwisterFast();
     }
     public Player(int[][] payoff, int strategy)
     {
         this.payoff = payoff;
         this.strategy = strategy;
+        random = new MersenneTwisterFast();
+    }
+    public Player(Player parent)
+    {
+        this.payoff = parent.payoff;
+        this.strategy = parent.strategy;
+        random = new MersenneTwisterFast();
     }
     
     /**
@@ -66,10 +78,15 @@ public class Player
     /**
      * Decides what strategy this agent will play. If pre-play communication is
      * ever used this might need to be given some arguments or re-factored.
-     * @return For now, always play the first strategy.
+     * @return For now, just pick a random strategy if one has not been assigned.
      */
     private int findStrategy()
     {
-        return 0;
+        return random.nextInt(payoff.length);
+    }
+    
+    public String toString()
+    {
+        return "Strategy " + this.strategy;
     }
 }
