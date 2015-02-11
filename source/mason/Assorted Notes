@@ -13,3 +13,15 @@ To accomplish this goal we will need:
 
 -see bookmarked page in book for more
 	-and basically all of chapter 2 and 3
+
+
+From Meeting With Jernej:
+-deathrate and birthrate
+	-other specific parameters from weibull
+	-fixed death % after playing
+	-fixed birth % after playing + a modifier based on your payoff
+-replicate results
+-basic gui
+-use latex/bibtex
+-dynamically change parameters
+	-does this work with Model tab?

@@ -22,7 +22,7 @@ public class PayoffMatrices {
         
         switch(gameNumber)
         {
-            case 0:     //Rock Paper Scissor!
+            case 0:     //Rock Paper Scissors!
                 p1 = new int[][] {
                     {1, 2, 0},
                     {0, 1, 2},
@@ -59,7 +59,7 @@ public class PayoffMatrices {
                 };
                 break;
             
-            default:        //just give everyone a bit for trying...
+            default:        //just give everyone a bit for trying..
                 p1 = new int[][] {
                     {1}
                 };
@@ -70,7 +70,6 @@ public class PayoffMatrices {
         }
         
         payoffs = new Pair<>(p1, p2);
-        
     }
     
     public static int[][] getPayoffMatrix(boolean firstStrategy)

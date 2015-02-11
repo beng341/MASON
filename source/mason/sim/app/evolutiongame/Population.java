@@ -13,7 +13,22 @@ public class Population extends SimState
 {
     private ArrayList<Player> players;
     
-    long numPlayers = 100000;//should probably have at least 1000 for anything useful
+    long numPlayers = 10000;//should probably have at least 1000 for anything useful
+    
+    /**
+     * The base percentage of an agent reproducing after playing a game.
+     */
+    double birthRate = 0.5;
+    /**
+     * Modifies the birth rate based off of payoff the agent received after the game.
+     * Chance of reproduction = birthRate + payOff * birthRateModifier.
+     */
+    double birthRateModifier = 0.1;
+    /**
+     * Chance that an agent will die after playing a game. Death occurs after
+     * reproduction.
+     */
+    double deathRate = 0.5;
     
     int strategyDistribution = RANDOMCHOICES;
     /** Choose this to have agents that randomly choose a strategy */
@@ -38,6 +53,42 @@ public class Population extends SimState
     }
     public Object domNumPlayers(){
         return new sim.util.Interval(0, 100000);
+    }
+    /*
+     * Methods to let user modify birth rate of all players.
+     */
+    public double getBirthRate(){
+        return this.birthRate;
+    }
+    public void setBirthRate(double rate){
+        this.birthRate = rate;
+    }
+    public Object domBirthRate(){
+        return new sim.util.Interval(0.0, 1.0);
+    }
+    /*
+     * Methods to let user modify birth rate of all players.
+     */
+    public double getBirthRateModifier(){
+        return this.birthRateModifier;
+    }
+    public void setBirthRateModifier(double rate){
+        this.birthRateModifier = rate;
+    }
+    public Object domBirthRateModifier(){
+        return new sim.util.Interval(0.0, 1.0);
+    }
+    /*
+     * Methods to let user modify birth rate of all players.
+     */
+    public double getDeathRate(){
+        return this.deathRate;
+    }
+    public void setDeathRate(double rate){
+        this.deathRate = rate;
+    }
+    public Object domDeathRate(){
+        return new sim.util.Interval(0.0, 1.0);
     }
     /*
      * Methods to let user decide player strategies.
