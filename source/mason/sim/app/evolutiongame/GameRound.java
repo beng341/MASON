@@ -21,7 +21,19 @@ import sim.engine.Steppable;
  */
 public class GameRound implements Steppable
 {
-
+    private MersenneTwisterFast random;
+    private double birthRate;
+    private double birthRateModifier;
+    private double deathRate;
+    
+    public GameRound()
+    {
+        super();
+        this.birthRate = 0.0;
+        this.deathRate = 0.0;
+        this.birthRateModifier = 0.0;
+    }
+    
     /**
      * Matches a number of members of the population against each other.
      * These Players will compete against each other and report the result.
@@ -35,7 +47,10 @@ public class GameRound implements Steppable
         Population pop = (Population)state;
         ArrayList<Player> players = pop.getPlayers();
         ArrayList<Player> newPlayers = new ArrayList<>();
-        MersenneTwisterFast random = pop.random;
+        this.random = pop.random;
+        this.birthRate = pop.birthRate;
+        this.birthRateModifier = pop.birthRateModifier;
+        this.deathRate = pop.deathRate;
         
         //print a bunch of stuff about the current state of the population
         System.out.println("\nWelcome to a new generation.");
@@ -102,7 +117,35 @@ public class GameRound implements Steppable
     {
         toAdd.clear();//should be faster than new
         //conversionReproduction(p1, p2, payoff1, payoff2);
-        utilityReproduction(p1, p2, payoff1, payoff2);
+        probabilisticReproduction(p1, p2, payoff1, payoff2);
+        
+        return toAdd;
+    }
+    
+    /**
+     * TODO: Check if this conforms with Weibull.
+     * Takes birthrate and deathrate into account. Currently, each player will have
+     * a single child with probability birthrate + payoff * birthRateModifier.
+     * As well, the player itself will be added back to the population with
+     * probability 1-deathrate.
+     * This has a relatively large number of calls to random so may be quite slow.
+     * @return 
+     */
+    public ArrayList<Player> probabilisticReproduction(Player p1, Player p2, int payoff1, int payoff2)
+    {
+        //check for player 1 child
+        if(random.nextDouble() <= (birthRate + birthRateModifier + payoff1))
+            toAdd.add(new Player(p1));
+        //check if player 1 lives
+        if(random.nextDouble() > deathRate)
+            toAdd.add(p1);
+        
+        //check for player 2 child
+        if(random.nextDouble() <= (birthRate + birthRateModifier + payoff2))
+            toAdd.add(new Player(p2));
+        //check if player 2 lives
+        if(random.nextDouble() > deathRate)
+            toAdd.add(p2);
         
         return toAdd;
     }
