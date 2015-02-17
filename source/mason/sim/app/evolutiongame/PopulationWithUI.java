@@ -1,5 +1,6 @@
 package sim.app.evolutiongame;
 
+import java.awt.Color;
 import javax.swing.JFrame;
 import sim.display.Console;
 import sim.display.Controller;
@@ -8,6 +9,7 @@ import sim.display.GUIState;
 import sim.engine.SimState;
 import sim.portrayal.Inspector;
 import sim.portrayal.continuous.ContinuousPortrayal2D;
+import sim.portrayal.simple.OvalPortrayal2D;
 
 /**
  *
@@ -17,6 +19,7 @@ public class PopulationWithUI extends GUIState {
 
     public Display2D display;
     public JFrame displayFrame;
+    ContinuousPortrayal2D fieldPortrayal = new ContinuousPortrayal2D();
     
     
     public PopulationWithUI(SimState state){
@@ -49,7 +52,13 @@ public class PopulationWithUI extends GUIState {
     public void setupPortrayals(){
         Population pop = (Population)state;
         
+        fieldPortrayal.setField(pop);
+        fieldPortrayal.setPortrayalForAll(new OvalPortrayal2D());
         
+        display.reset();
+        display.setBackdrop(Color.WHITE);
+        
+        display.repaint();
     }
     
     @Override
@@ -64,7 +73,7 @@ public class PopulationWithUI extends GUIState {
         c.registerFrame(displayFrame);
         displayFrame.setVisible(true);
         
-        //display.attach(      );
+        display.attach(fieldPortrayal, "field");
     }
     
     @Override

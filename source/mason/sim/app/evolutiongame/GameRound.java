@@ -133,18 +133,26 @@ public class GameRound implements Steppable
      */
     public ArrayList<Player> probabilisticReproduction(Player p1, Player p2, int payoff1, int payoff2)
     {
+        double nextRand = random.nextDouble();
+        double checkAgainst = (birthRate + birthRateModifier*payoff1);
         //check for player 1 child
-        if(random.nextDouble() <= (birthRate + birthRateModifier + payoff1))
+        if(nextRand <= checkAgainst)
             toAdd.add(new Player(p1));
+        
         //check if player 1 lives
-        if(random.nextDouble() > deathRate)
+        nextRand = random.nextDouble();
+        if(nextRand > deathRate)
             toAdd.add(p1);
         
+        nextRand = random.nextDouble();
+        checkAgainst = (birthRate + birthRateModifier*payoff2);
         //check for player 2 child
-        if(random.nextDouble() <= (birthRate + birthRateModifier + payoff2))
+        if(nextRand <= checkAgainst)
             toAdd.add(new Player(p2));
+        
         //check if player 2 lives
-        if(random.nextDouble() > deathRate)
+        nextRand = random.nextDouble();
+        if(nextRand > deathRate)
             toAdd.add(p2);
         
         return toAdd;

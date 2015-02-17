@@ -1,6 +1,8 @@
 package sim.app.evolutiongame;
 
 import ec.util.MersenneTwisterFast;
+import sim.engine.SimState;
+import sim.engine.Steppable;
 
 /**
  * The base class for a player that plays a game. Games will be two-player so
@@ -8,7 +10,7 @@ import ec.util.MersenneTwisterFast;
  * will be done by the GameRound at every step in the simulation.
  * @author Ben Armstrong
  */
-public class Player
+public class Player implements Steppable
 {
     private int[][] payoff;
     
@@ -88,5 +90,11 @@ public class Player
     public String toString()
     {
         return "Strategy " + this.strategy;
+    }
+
+    @Override
+    public void step(SimState state)
+    {
+        //see page 18 or so in manual for more info on this
     }
 }
