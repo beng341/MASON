@@ -1,0 +1,38 @@
+Goal is to run simulations of evolutionary game theory in MASON.
+To accomplish this goal we will need:
+-a population of players that play games against each other
+-players either breed or change player types in response to a win or a loss
+
+-games are most likely restricted to 2 player games
+	-require a payoff matrix for each player
+	-may be good to have functions such as findNashEquilibrium() etc. to help determine player strategies
+	-any abitrary matrix should be able to be added
+
+-players should have some strategy that they follow (?)
+	-could translate to being on a certain team
+
+-see bookmarked page in book for more
+	-and basically all of chapter 2 and 3
+
+
+From Meeting With Jernej:
+-deathrate and birthrate
+	-other specific parameters from weibull
+	-fixed death % after playing
+	-fixed birth % after playing + a modifier based on your payoff
+-replicate results
+-basic gui
+-show statistics in gui window
+-use latex/bibtex
+-want to be able to inject a population
+-java3d?
+
+From Meeting on Feb 18th:
+Birthrate:
+might be more historical
+-everyone reproduces with some base probability regardless of fitness
+-is modified by success/lack of success
+
+-become familiar with the capabilities of MASON and read more into the book
+-actually figure out replicator dynamics :(
+-familiarize myself with code from the other project

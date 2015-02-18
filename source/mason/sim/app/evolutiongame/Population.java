@@ -129,6 +129,7 @@ public class Population extends SimState
     public void start()
     {
         super.start();
+        
         PayoffMatrices.setGame(gameNumber);
         
         field.clear();
