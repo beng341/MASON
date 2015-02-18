@@ -44,7 +44,8 @@ public class PopulationWithUI extends GUIState {
         super.start();
         setupPortrayals();
     }
-    public void load(){
+    @Override
+    public void load(SimState state){
         super.load(state);
         setupPortrayals();
     }
@@ -52,7 +53,7 @@ public class PopulationWithUI extends GUIState {
     public void setupPortrayals(){
         Population pop = (Population)state;
         
-        fieldPortrayal.setField(pop);
+        fieldPortrayal.setField(pop.field);
         fieldPortrayal.setPortrayalForAll(new OvalPortrayal2D());
         
         display.reset();
@@ -73,7 +74,7 @@ public class PopulationWithUI extends GUIState {
         c.registerFrame(displayFrame);
         displayFrame.setVisible(true);
         
-        display.attach(fieldPortrayal, "field");
+        display.attach(fieldPortrayal, "Field");
     }
     
     @Override

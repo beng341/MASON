@@ -6,6 +6,7 @@ import java.util.HashSet;
 import sim.app.evolutiongame.Util.Pair;
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import sim.util.Double2D;
 
 /**
  * This will run one round of the simulation. That means matching players against
@@ -72,13 +73,25 @@ public class GameRound implements Steppable
         
         Player p1;
         Player p2;
-        
+        ArrayList<Player> resultOfMatch;
+        pop.field.clear();
         //for now, have every player matched against another player (or, one unmatched if an odd number of players)
         while(players.size() > 1)
         {
+            //have each player play against a random opponent
             p1 = players.remove(random.nextInt(players.size()));
             p2 = players.remove(random.nextInt(players.size()));
-            newPlayers.addAll(runMatch(p1, p2));
+            resultOfMatch = runMatch(p1, p2);
+            newPlayers.addAll(resultOfMatch);
+            
+            //have each player put in a random location
+            for(Player p: resultOfMatch)
+            {
+                pop.field.setObjectLocation(p,
+                        new Double2D(pop.field.getWidth()*0.5 + random.nextDouble()-0.5,
+                                pop.field.getHeight()*0.5 + random.nextDouble()-0.5));
+            }
+            
         }
         if(players.size() == 1)//make sure we don't lose a player if there are an odd number of players
             newPlayers.add(players.get(0));

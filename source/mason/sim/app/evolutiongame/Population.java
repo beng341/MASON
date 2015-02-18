@@ -3,6 +3,8 @@ package sim.app.evolutiongame;
 import java.util.ArrayList;
 import java.util.HashSet;
 import sim.engine.SimState;
+import sim.field.continuous.Continuous2D;
+import sim.util.Double2D;
 
 /**
  * Holds a number of Players that will play a game against each other and allow
@@ -16,9 +18,14 @@ public class Population extends SimState
     long numPlayers = 10000;//should probably have at least 1000 for anything useful
     
     /**
+     * Used to graphically represent the players. Currently has 250000 cells.
+     */
+    public Continuous2D field = new Continuous2D(1.0, 500, 500);
+    
+    /**
      * The base percentage of an agent reproducing after playing a game.
      */
-    double birthRate = 0.5;
+    double birthRate = 0.4;
     /**
      * Modifies the birth rate based off of payoff the agent received after the game.
      * Chance of reproduction = birthRate + payOff * birthRateModifier.
@@ -124,16 +131,23 @@ public class Population extends SimState
         super.start();
         PayoffMatrices.setGame(gameNumber);
         
+        field.clear();
+        
         int i = 0;
         this.players = new ArrayList<>();
         int[][] matrix;
         int strategy;
+        Player p;
         while(i++ < numPlayers)
         {
             //initializes a player to a random strategy
             matrix = PayoffMatrices.getPayoffMatrix(random.nextBoolean());
             strategy = random.nextInt(matrix.length);
-            players.add(new Player(matrix, strategy));
+            p = new Player(matrix, strategy);
+            players.add(p);
+            field.setObjectLocation(p, 
+                    new Double2D(field.getWidth()*0.5 + random.nextDouble()-0.5,
+                            field.getHeight()*0.5 + random.nextDouble()-0.5));
         }
         
         schedule.scheduleRepeating(new GameRound());
