@@ -10,7 +10,7 @@ import javax.swing.*;
 import agents.states.SimStateWithSimController;
 import sim.util.*;
 //Hellooooo
-
+//hello from Jonathan
 public class GraphicalUI extends GUIState{
 	public Display2D display; 
     public JFrame displayFrame;
