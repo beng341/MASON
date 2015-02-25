@@ -15,7 +15,7 @@ To accomplish this goal we will need:
 	-and basically all of chapter 2 and 3
 
 
-From Meeting With Jernej:
+From Meeting With Jernej Feb 11th:
 -deathrate and birthrate
 	-other specific parameters from weibull
 	-fixed death % after playing
@@ -34,5 +34,8 @@ might be more historical
 -is modified by success/lack of success
 
 -become familiar with the capabilities of MASON and read more into the book
--actually figure out replicator dynamics :(
+-actually figure out replicator dynamics
 -familiarize myself with code from the other project
+
+Try to get rid of GameRound class. It seems like every Steppable object is run at each step. We can keep track of agents that have played by having two collections of agents in the Population class and just randomly pulling from the collection that hasn't been played yet. (Only playing if you yourself started in the collection of unplayed agents)
+This should simplify the GUI aspect.

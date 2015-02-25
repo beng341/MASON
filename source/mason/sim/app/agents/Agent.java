@@ -600,25 +600,25 @@ public class Agent implements Steppable{
 				playPDWithAll(as);
 			else if(as.multipleInteractions || !this.played)
 				playPD(as);
-
+                        
 			//reproduce
 			final double reproduceEnergy = as.reproduceEnergy;
 			if(energy >= reproduceEnergy)
 				reproduce(as);
-
+                        
 			//energy loss
 			final double energyLoss = as.energyLoss;
 			this.energy -= energyLoss;
 			final double maxEnergy = as.maxEnergy;
 			if(energy > maxEnergy)
 				this.energy = maxEnergy;
-
+                        
 			//move probabilistically
 			//NOTE: ObjectGrid2D can only hold one object per location, so occupySameSpace doesn't work. 
 			if(!this.played || this.walk)
 				moveProbabilistically(as);
 		}
-
+                
 		final boolean aktipisDeath = as.aktipisDeath;
 		if(aktipisDeath){
 			final Bag agents = as.allAgents;

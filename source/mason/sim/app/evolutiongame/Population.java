@@ -13,15 +13,29 @@ import sim.util.Double2D;
  */
 public class Population extends SimState
 {
+    /***************************************************************************
+     * Variables that are not directly related to simulation parameters:
+     **************************************************************************/
     private ArrayList<Player> players;
-    
-    long numPlayers = 10000;//should probably have at least 1000 for anything useful
+    /**
+     * A list of players that have not yet played this round.
+     */
+    private ArrayList<Player> unplayedPlayers;
+    /**
+     * A list of players that have already played during this round.
+     */
+    private ArrayList<Player> playedPlayers;
     
     /**
      * Used to graphically represent the players. Currently has 250000 cells.
      */
     public Continuous2D field = new Continuous2D(1.0, 500, 500);
     
+    
+    
+    /***************************************************************************
+    * Variables for simulation parameters:
+    ***************************************************************************/
     /**
      * The base percentage of an agent reproducing after playing a game.
      */
@@ -36,6 +50,8 @@ public class Population extends SimState
      * reproduction.
      */
     double deathRate = 0.5;
+    
+    long numPlayers = 10000;//should probably have at least 1000 for anything useful
     
     int strategyDistribution = RANDOMCHOICES;
     /** Choose this to have agents that randomly choose a strategy */
