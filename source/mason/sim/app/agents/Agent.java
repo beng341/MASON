@@ -10,6 +10,15 @@ import sim.field.grid.SparseGrid2D;
 import sim.field.grid.ObjectGrid2D;
 import sim.util.*;
 
+/**
+ * Class for Agents that play the Prisoner's Dilemma game. There are various methods
+ * for controlling things such as movement, reproduction, finding an opponent that
+ * hasn't yet played, death, etc.
+ * The step() method is what is executed at each iteration of the simulation.
+ * Every agent runs step() once per game iteration, this causes each agent to try
+ * to play a game, move, reproduce, modify its energy level, and die etc..
+ * -BA
+ */
 public class Agent implements Steppable{
 	public int xdir;
 	public int ydir;
@@ -581,10 +590,22 @@ public class Agent implements Steppable{
 
 
 
-
+        
 	/*********************************************************************************************************
 	 * 					Step Method
 	 ***********************************************************************************************************/
+        /**
+         * This is what happens for each agent at each iteration of a simulation.
+         * In order, agents will:
+         * -check if they should die (random chance or energy is too low)
+         * -play a game against one or all opponents as specified by the user
+         * -reproduce if it has sufficient energy
+         * -take an energy deduction as the cost of living
+         * -move if it did not get to play a game yet
+         * -if aktipis death is on (off by default) check if some energy should be
+         * removed from a random agent.
+         * @param state 
+         */
 	public void step(SimState state){
 		final AgentsSimulation as = (AgentsSimulation)state;
 
