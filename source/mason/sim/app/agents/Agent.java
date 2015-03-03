@@ -18,6 +18,7 @@ import sim.util.*;
  * Every agent runs step() once per game iteration, this causes each agent to try
  * to play a game, move, reproduce, modify its energy level, and die etc..
  * -BA
+ * change
  */
 public class Agent implements Steppable{
 	public int xdir;
