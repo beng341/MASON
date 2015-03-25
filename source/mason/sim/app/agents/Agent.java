@@ -28,6 +28,11 @@ public class Agent implements Steppable{
 	public boolean walk;
 	public double mixed_p;
 
+        /**
+         * type contains the move the agent plays (cooperator or defector) in the
+         * x coordinate and whether the agent walks away after playing or not in
+         * the y-variable.
+         */
 	public Int2D type;
 	public boolean played;
 	public Int2D loc;
