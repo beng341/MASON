@@ -616,8 +616,8 @@ public class Agent implements Steppable{
 				reproduce(as);
                         
 			//energy loss
-			final double Injury_Cost = as.Injury_Cost;
-			this.energy -= Injury_Cost;
+			final double Energy_Loss = as.Energy_Loss;
+			this.energy -= Energy_Loss;
 			final double maxResource = as.maxResource;
 			if(energy > maxResource)
 				this.energy = maxResource;
