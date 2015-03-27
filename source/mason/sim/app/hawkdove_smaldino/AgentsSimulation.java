@@ -39,7 +39,7 @@ public class AgentsSimulation extends SimStateWithSimController { //extend the c
 	public double startResource = 50.0;
 	public double reproduceResource_Level = 100.0;
 	public double maxResource = 150;
-	public double Injury_Cost = 25;
+	public double Energy_Loss= 25;
 	public long maxAgents = 5000;
 	public int reproductionRadius = 1;
 	public boolean randomReproduction = false;
@@ -208,8 +208,8 @@ public class AgentsSimulation extends SimStateWithSimController { //extend the c
 	public void setrandomReproduction(boolean h){ randomReproduction = h; }
 	public boolean getoffSpringGetsHalf(){	return offSpringGetsHalf;}
 	public void setoffSpringGetsHalf(boolean h){ offSpringGetsHalf = h; }
-	public double getInjury_Cost(){ return Injury_Cost;}
-	public void setInjury_Cost(double h){ if (h >= 0) Injury_Cost = h;}
+	public double getEnergy_Loss(){ return Energy_Loss;}
+	public void setEnergy_Loss(double h){ if (h >= 0) Energy_Loss = h;}
 	public double getMax_Resource(){ return maxResource;}
 	public void setMax_Resource(double h){ if (h >= 0) maxResource = h;}
 	public double getrandomDeath(){ return randomDeath;}
