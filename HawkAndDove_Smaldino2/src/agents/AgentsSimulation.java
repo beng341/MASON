@@ -1,9 +1,9 @@
-package hawkdove_smaldino;
+package agents;
 
-import hawkdove_smaldino.control.SimController;
 import java.awt.Color;
 
-import hawkdove_smaldino.states.SimStateWithSimController;
+import agents.states.SimStateWithSimController;
+import agents.control.*;
 import sim.field.grid.IntGrid2D;
 import sim.field.grid.SparseGrid2D;
 import sim.field.grid.ObjectGrid2D;
@@ -38,8 +38,10 @@ public class AgentsSimulation extends SimStateWithSimController { //extend the c
 	public int gridHeight = 100;
 	public double startResource = 50.0;
 	public double reproduceResource_Level = 100.0;
+	public static double Resource_Benefit = 50;
+	public static double Injury_Cost = 25;
 	public double maxResource = 150;
-	public double Energy_Loss= 25;
+	public static double Energy_Loss = 0.5;
 	public long maxAgents = 5000;
 	public int reproductionRadius = 1;
 	public boolean randomReproduction = false;
@@ -52,12 +54,15 @@ public class AgentsSimulation extends SimStateWithSimController { //extend the c
 	public int mixed_n = 0;
 	public int wmixed_n = 0;
 	public int[][] population ={{dove_n, wdove_n},{hawk_n, whawk_n}, {mixed_n,wmixed_n}};
-	public double dove_pay_vs_dove = 25;
-	public double dove_pay_vs_hawk = 0;
-	public double hawk_pay_vs_dove = 50;
-	public double hawk_pay_vs_hawk = 12.5;
+	
+	public static double dove_pay_vs_dove = Resource_Benefit/2;
+	public static double dove_pay_vs_hawk = 0;
+	public static double hawk_pay_vs_dove = Resource_Benefit;
+	public static double hawk_pay_vs_hawk= (Resource_Benefit - Injury_Cost)/2 ;
+	
+	
 	public double[][] payoffs = {{dove_pay_vs_dove,dove_pay_vs_hawk},{hawk_pay_vs_dove,hawk_pay_vs_hawk}};
-	public boolean toroidal = true;
+	public          boolean toroidal = true;
 	public boolean mutation = false;
 	public double mutationProb = 0.00;
 	public double mixed_p = 0.5;
@@ -208,6 +213,10 @@ public class AgentsSimulation extends SimStateWithSimController { //extend the c
 	public void setrandomReproduction(boolean h){ randomReproduction = h; }
 	public boolean getoffSpringGetsHalf(){	return offSpringGetsHalf;}
 	public void setoffSpringGetsHalf(boolean h){ offSpringGetsHalf = h; }
+	public double getResource_Benefit(){ return Resource_Benefit;}
+	public void setResource_Benefit(double h){ if (h >= 0) Resource_Benefit = h;}
+	public double getInjury_Cost(){ return Injury_Cost;}
+	public void setInjury_Cost(double h){ if (h >= 0) Injury_Cost = h;}
 	public double getEnergy_Loss(){ return Energy_Loss;}
 	public void setEnergy_Loss(double h){ if (h >= 0) Energy_Loss = h;}
 	public double getMax_Resource(){ return maxResource;}
@@ -222,7 +231,8 @@ public class AgentsSimulation extends SimStateWithSimController { //extend the c
 	public String getVALUES(){
 		 return gameValues;
 	}
-	public double getDove_PayOff_vs_Dove(){   	return payoffs[COOPERATE][COOPERATE]; }
+   /*
+   public double getDove_PayOff_vs_Dove(){   	return payoffs[COOPERATE][COOPERATE]; }
    public void setDove_PayOff_vs_Dove(double w){ 	dove_pay_vs_dove = w; payoffs[COOPERATE][COOPERATE] = w; }
    
    public double getDove_PayOff_vs_Hawk (){   	return payoffs[COOPERATE][DEFECT]; }
@@ -233,7 +243,8 @@ public class AgentsSimulation extends SimStateWithSimController { //extend the c
    
    public double getHawk_PayOff_vs_Hawk (){   	return payoffs[DEFECT][DEFECT]; }
    public void setHawk_PayOff_vs_Hawk(double w){ 	hawk_pay_vs_hawk = w; payoffs[DEFECT][DEFECT] = w; }
-   
+   */
+	
    public boolean getuseError(){	return useError;}
    public void setuseError(boolean h){ useError = h; }
    public double getepsteinMutation(){ return epsteinMutation;}
@@ -437,7 +448,7 @@ public class AgentsSimulation extends SimStateWithSimController { //extend the c
 		payoffs[COOPERATE][COOPERATE] = dove_pay_vs_dove;
 		payoffs[COOPERATE][DEFECT] = dove_pay_vs_hawk;
 		payoffs[DEFECT][COOPERATE] = hawk_pay_vs_dove;
-		payoffs[DEFECT][DEFECT] = hawk_pay_vs_hawk;
+		payoffs[DEFECT][DEFECT] = (hawk_pay_vs_hawk);
 	}
 	
 	/**

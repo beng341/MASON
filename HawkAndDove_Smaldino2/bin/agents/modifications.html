@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>modifications</title>
+</head>
+<body>
+<big><span style="font-weight: bold;">Modifications List</span></big><br>
+<br>
+<span style="color: rgb(255, 0, 0);">1/9/10 (J. S.)</span><br>
+<br>
+1. Added <a href="../../script.txt">scripting</a> systematic analysis
+of <a href="../../simulation/simulationParameters.txt">parameters</a>.
+&nbsp;The simulation parameters file allows the user to systematically
+change parameter values after the key word:
+&nbsp;SIMULATION_PARAMETERS, which is case sensitive. &nbsp;The first
+line contains the parameter names that can be changed. &nbsp;After the
+first word, which labels the time step, the parameter names must match
+those declared in <a href="AgentsSimulation.java">AgentsSimulation.java</a>.
+&nbsp;The list of value in the rows that follow are the parameter
+values for simulations 1 to n.<br>
+<br>
+2. Added automatic PNG saves. &nbsp;If savePNGToFile = true, then a PNG
+of the window at &nbsp;time t is saved at the printSteps intervals.
+&nbsp;When scripted, PNGs are saved in the simulation data folder in
+folders named "run" + the run number (e.g., run1, run2, etc.).
+&nbsp;PNG files are named "name" + simulation number "-" + time step
+(e.g., pic2-1000.png).<br>
+<br>
+3. Data is collected by the <a href="Data.java">Data Class</a>.
+&nbsp;Note that the simulation determines the number of columns data by
+the length of fileheaders String variable:<br>
+<br>
+public String[] fileheaders ={"trial", "N",
+"Coop","Defect","WCoop","WDefect","simulations"};<br>
+<br>
+So, to add a new column of data, add a new column string:<br>
+<br>
+public String[] fileheaders ={"trial", "N",
+"Coop","Defect","WCoop","WDefect","simulations", "newData"};<br>
+<br>
+Then get the <span style="font-style: italic;">newData</span> and add
+it to the data bag (e.g., data.add(<span style="font-style: italic;">newData</span>)).<br>
+<br>
+<br>
+<br>
+&nbsp;<br>
+<br>
+</body>
+</html>

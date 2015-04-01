@@ -1,4 +1,4 @@
-package hawkdove_smaldino;
+package agents;
 import java.awt.Color;
 
 import ec.util.MersenneTwisterFast;
@@ -10,7 +10,7 @@ import sim.field.grid.SparseGrid2D;
 import sim.field.grid.ObjectGrid2D;
 import sim.util.*;
 /**
- * Class for Agents that play the Prisoner's Dilemma game. There are various methods
+ * Class for Agents that play the Hawk and Dove game. There are various methods
  * for controlling things such as movement, reproduction, finding an opponent that
  * hasn't yet played, death, etc.
  * The step() method is what is executed at each iteration of the simulation.
@@ -45,7 +45,7 @@ public class Agent implements Steppable{
 	public int[][] orientationLookUp = null;
 	public Int2D[][] directionLookUp = null;
 	public Int2D[] randomMovement = null;
-        
+
 
 	public final int lookUpOrientation (final int xdir, final int ydir){
 		return orientationLookUp[xdir+1][ydir+1];
@@ -120,7 +120,7 @@ public class Agent implements Steppable{
 		else
 			return move;
 	}
-	// TODO Create TFT, PAVLOV, and Grim agents. This will require imbuing the agents
+	
 	// with memory. We will have to give all agents IDs, and allow other agents
 	// to remember these.
 
@@ -597,6 +597,8 @@ public class Agent implements Steppable{
 	public void step(SimState state){
 		final AgentsSimulation as = (AgentsSimulation)state;
 
+		
+		
 		//if death conditions, kill agent. Else,
 		final double randomDeath = as.randomDeath;
 		final boolean death = as.random.nextBoolean(randomDeath);
@@ -614,7 +616,7 @@ public class Agent implements Steppable{
 			final double reproduceResource_Level = as.reproduceResource_Level;
 			if(energy >= reproduceResource_Level)
 				reproduce(as);
-                        
+
 			//energy loss
 			final double Energy_Loss = as.Energy_Loss;
 			this.energy -= Energy_Loss;
@@ -628,6 +630,10 @@ public class Agent implements Steppable{
 				moveProbabilistically(as);
 		}
 
+		
+		
+		
+		
 		final boolean aktipisDeath = as.aktipisDeath;
 		if(aktipisDeath){
 			final Bag agents = as.allAgents;
