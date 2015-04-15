@@ -14,7 +14,7 @@ public class HandleData implements java.io.Serializable {
 	SimController sc;
 	public Display2D display = null;
 	public String precision= "%.4f";
-  
+        private static final long serialVersionUID = 1L;
 
 	/** This code should be reused for each simulation **/
 

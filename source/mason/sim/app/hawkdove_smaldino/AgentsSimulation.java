@@ -31,15 +31,17 @@ public class AgentsSimulation extends SimStateWithSimController { //extend the c
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	//private static final long serialVersionUID = 1L;
 	public ObjectGrid2D agentsSpace;
 	public ObjectGridPortrayal2D agentsPortrayal = new ObjectGridPortrayal2D();
 	public int gridWidth = 100;
 	public int gridHeight = 100;
 	public double startResource = 50.0;
 	public double reproduceResource_Level = 100.0;
+        public static double Resource_Benefit = 50;
+	public static double Injury_Cost = 25;
 	public double maxResource = 150;
-	public double Energy_Loss= 25;
+	public double Energy_Loss= 0.5;
 	public long maxAgents = 5000;
 	public int reproductionRadius = 1;
 	public boolean randomReproduction = false;
@@ -52,10 +54,10 @@ public class AgentsSimulation extends SimStateWithSimController { //extend the c
 	public int mixed_n = 0;
 	public int wmixed_n = 0;
 	public int[][] population ={{dove_n, wdove_n},{hawk_n, whawk_n}, {mixed_n,wmixed_n}};
-	public double dove_pay_vs_dove = 25;
-	public double dove_pay_vs_hawk = 0;
-	public double hawk_pay_vs_dove = 50;
-	public double hawk_pay_vs_hawk = 12.5;
+	public static double dove_pay_vs_dove = 0;
+	public static double dove_pay_vs_hawk = 0;
+	public static double hawk_pay_vs_dove = 0;
+	public static double hawk_pay_vs_hawk=  0;
 	public double[][] payoffs = {{dove_pay_vs_dove,dove_pay_vs_hawk},{hawk_pay_vs_dove,hawk_pay_vs_hawk}};
 	public boolean toroidal = true;
 	public boolean mutation = false;
@@ -208,6 +210,10 @@ public class AgentsSimulation extends SimStateWithSimController { //extend the c
 	public void setrandomReproduction(boolean h){ randomReproduction = h; }
 	public boolean getoffSpringGetsHalf(){	return offSpringGetsHalf;}
 	public void setoffSpringGetsHalf(boolean h){ offSpringGetsHalf = h; }
+        public double getResource_Benefit(){ return Resource_Benefit;}
+	public void setResource_Benefit(double h){ if (h >= 0) Resource_Benefit = h;}
+	public double getInjury_Cost(){ return Injury_Cost;}
+	public void setInjury_Cost(double h){ if (h >= 0) Injury_Cost = h;}
 	public double getEnergy_Loss(){ return Energy_Loss;}
 	public void setEnergy_Loss(double h){ if (h >= 0) Energy_Loss = h;}
 	public double getMax_Resource(){ return maxResource;}
@@ -222,18 +228,19 @@ public class AgentsSimulation extends SimStateWithSimController { //extend the c
 	public String getVALUES(){
 		 return gameValues;
 	}
-	public double getDove_PayOff_vs_Dove(){   	return payoffs[COOPERATE][COOPERATE]; }
-   public void setDove_PayOff_vs_Dove(double w){ 	dove_pay_vs_dove = w; payoffs[COOPERATE][COOPERATE] = w; }
+	/*
+        public double getDove_PayOff_vs_Dove(){   	return payoffs[COOPERATE][COOPERATE]; }
+        public void setDove_PayOff_vs_Dove(double w){ 	dove_pay_vs_dove = w; payoffs[COOPERATE][COOPERATE] = w; }
    
-   public double getDove_PayOff_vs_Hawk (){   	return payoffs[COOPERATE][DEFECT]; }
-   public void setDove_PayOff_vs_Hawk (double w){ 	dove_pay_vs_hawk = w; payoffs[COOPERATE][DEFECT] = w; }
+        public double getDove_PayOff_vs_Hawk (){   	return payoffs[COOPERATE][DEFECT]; }
+        public void setDove_PayOff_vs_Hawk (double w){ 	dove_pay_vs_hawk = w; payoffs[COOPERATE][DEFECT] = w; }
    
-   public double getHawk_PayOff_vs_Dove (){   	return payoffs[DEFECT][COOPERATE]; }
-   public void setHawk_PayOff_vs_Dove(double w){ 	hawk_pay_vs_dove = w; payoffs[DEFECT][COOPERATE] = w; }
+        public double getHawk_PayOff_vs_Dove (){   	return payoffs[DEFECT][COOPERATE]; }
+        public void setHawk_PayOff_vs_Dove(double w){ 	hawk_pay_vs_dove = w; payoffs[DEFECT][COOPERATE] = w; }
    
-   public double getHawk_PayOff_vs_Hawk (){   	return payoffs[DEFECT][DEFECT]; }
-   public void setHawk_PayOff_vs_Hawk(double w){ 	hawk_pay_vs_hawk = w; payoffs[DEFECT][DEFECT] = w; }
-   
+        public double getHawk_PayOff_vs_Hawk (){   	return payoffs[DEFECT][DEFECT]; }
+        public void setHawk_PayOff_vs_Hawk(double w){ 	hawk_pay_vs_hawk = w; payoffs[DEFECT][DEFECT] = w; }
+   */
    public boolean getuseError(){	return useError;}
    public void setuseError(boolean h){ useError = h; }
    public double getepsteinMutation(){ return epsteinMutation;}

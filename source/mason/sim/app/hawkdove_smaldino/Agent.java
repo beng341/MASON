@@ -132,6 +132,17 @@ public class Agent implements Steppable{
 		if(b != null){
 			final int moveA = findMove(as, this.type.x);
 			final int moveB = findMove(as, b.type.x);
+                        
+                        double v = as.getResource_Benefit();
+			double c = as.getInjury_Cost();
+			
+			//Re-calculate payoffs
+			as.hawk_pay_vs_hawk = (v-c)/2;
+			as.hawk_pay_vs_dove = v;
+			
+			as.dove_pay_vs_dove = v/2;
+			as.dove_pay_vs_hawk = 0;
+                        
 			this.energy += as.payoffs[moveA][moveB];
 			b.energy += as.payoffs[moveB][moveA];
 			this.played = true;
