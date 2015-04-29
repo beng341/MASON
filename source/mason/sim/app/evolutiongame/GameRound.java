@@ -150,7 +150,7 @@ public class GameRound implements Steppable
         double checkAgainst = (birthRate + birthRateModifier*payoff1);
         //check for player 1 child
         if(nextRand <= checkAgainst)
-            toAdd.add(new Player(p1));
+            toAdd.add(new Player(p1, null));
         
         //check if player 1 lives
         nextRand = random.nextDouble();
@@ -161,7 +161,7 @@ public class GameRound implements Steppable
         checkAgainst = (birthRate + birthRateModifier*payoff2);
         //check for player 2 child
         if(nextRand <= checkAgainst)
-            toAdd.add(new Player(p2));
+            toAdd.add(new Player(p2, null));
         
         //check if player 2 lives
         nextRand = random.nextDouble();
@@ -194,9 +194,9 @@ public class GameRound implements Steppable
     public ArrayList<Player> utilityReproduction(Player p1, Player p2, int payoff1, int payoff2)
     {
         for(int i = 0; i < payoff1; ++i)
-            toAdd.add(new Player(p1));
+            toAdd.add(new Player(p1, null));
         for(int i = 0; i < payoff2; ++i)
-            toAdd.add(new Player(p2));
+            toAdd.add(new Player(p2, null));
         
         return toAdd;
     }

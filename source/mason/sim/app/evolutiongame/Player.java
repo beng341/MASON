@@ -1,6 +1,9 @@
 package sim.app.evolutiongame;
 
 import ec.util.MersenneTwisterFast;
+import java.util.ArrayList;
+import sim.engine.SimState;
+import sim.engine.Steppable;
 
 /**
  * The base class for a player that plays a game. Games will be two-player so
@@ -8,9 +11,26 @@ import ec.util.MersenneTwisterFast;
  * will be done by the GameRound at every step in the simulation.
  * @author Ben Armstrong
  */
-public class Player
+public class Player implements Steppable
 {
-    private int[][] payoff;
+    private int[][] payoffMatrix;
+    
+    /**
+     * Contains the most recent payoff earned by this player. This is always
+     * updated at the same time as lastPlayed so we can know whether this value
+     * is still current.
+     */
+    private int payoff;
+    /**
+     * tracks the last time this player played so that it does not play twice in
+     * one time step (unless it is allowed to, then it can...)
+     */
+    private double lastPlayed;
+    /**
+     * Contains the Population object controlling the simulation. Use this to 
+     * access things like the schedule or random number generator.
+     */
+    private Population pop;
     
     /**
      * The index of the strategy that this player will play. Initialized to -1 
@@ -18,7 +38,10 @@ public class Player
      */
     private int strategy = -1;
     
-    private MersenneTwisterFast random;
+    
+    private double birthRate;
+    private double birthRateModifier;
+    private double deathRate;
     
     /**
      * 
@@ -26,23 +49,23 @@ public class Player
      * payoff at p[i][j] if it plays strategy i and the other player does
      * strategy j.
      */
-    public Player(int[][] payoff)
+    public Player(int[][] payoff, Population pop)
     {
-        this.payoff = payoff;
+        this.payoffMatrix = payoff;
         this.strategy = findStrategy();
-        random = new MersenneTwisterFast();
+        this.pop = pop;
     }
-    public Player(int[][] payoff, int strategy)
+    public Player(int[][] payoff, int strategy, Population pop)
     {
-        this.payoff = payoff;
+        this.payoffMatrix = payoff;
         this.strategy = strategy;
-        random = new MersenneTwisterFast();
+        this.pop = pop;
     }
-    public Player(Player parent)
+    public Player(Player parent, Population pop)
     {
-        this.payoff = parent.payoff;
+        this.payoffMatrix = parent.payoffMatrix;
         this.strategy = parent.strategy;
-        random = new MersenneTwisterFast();
+        this.pop = pop;
     }
     
     /**
@@ -55,7 +78,7 @@ public class Player
     {
         //TODO: Add some validation here?
         
-        return payoff[getStrategy()][opp];
+        return payoffMatrix[getStrategy()][opp];
     }
     
     public int getStrategy()
@@ -64,7 +87,6 @@ public class Player
             strategy = findStrategy();
         return strategy;
     }
-    
     /**
      * Be careful with using this method. Make sure we don't change a Player's 
      * strategy when we really should create a new Player.
@@ -74,7 +96,6 @@ public class Player
     {
         this.strategy = strategy;
     }
-    
     /**
      * Decides what strategy this agent will play. If pre-play communication is
      * ever used this might need to be given some arguments or re-factored.
@@ -82,8 +103,106 @@ public class Player
      */
     private int findStrategy()
     {
-        return random.nextInt(payoff.length);
+        return pop.random.nextInt(payoffMatrix.length);
     }
+    
+    public int lastPlayed(){
+        return 0;
+    }
+    
+    /**
+     * Finds all players this player is currently eligible to play against. This
+     * should take into account lastPlayed time, spatial location, and simulation
+     * parameters.
+     * @return 
+     */
+    private ArrayList<Player> findOpponents(){
+        
+        //for now, just choose from all possible players
+        
+        return pop.getPlayers();
+    }
+    
+    /**
+     * Has this player play a game against one or more of the potential opponents.
+     * Depending upon simulation parameters, a player might be able to play against
+     * exactly one opponent or multiple opponents.
+     * Sets the payoff value earned by this player and the other players that
+     * played.
+     * 
+     * Be sure to update lastPlayed for all relevant players in this method.
+     * @param opponents 
+     */
+    private void playGameAgainst(ArrayList<Player> opponents){
+        
+        if(opponents.size() == 0)
+            return;
+        
+        //default behaviour will be to pick a random opponent and play them
+        Player opp = opponents.get(pop.random.nextInt(opponents.size()));
+        opp.playWith(this);
+        playWith(opp);
+    }
+    
+    /**
+     * Sets payoff and lastPlayed time for this player playing against given
+     * opponent.
+     * @param opponent 
+     */
+    public void playWith(Player opponent){
+        lastPlayed = pop.schedule.getTime();
+        payoff = payoffMatrix[getStrategy()][opponent.strategy];
+    }
+    
+    /**
+     * Using the given payoff amount received this round, the player will do stuff...
+     * This might be modifying energy levels, killing itself or other things.
+     * @param payoff 
+     */
+    private void usePayoff(int payoff){
+        
+    }
+    
+    /**
+     * Using the agents most recent payoff and possibly its energy level, the agent
+     * will try to reproduce. Any created agents are added to the population.
+     */
+    private void tryToReproduce(int payoff){
+        
+        //default behaviour will copy probabilisticReproduction from GameRound
+        //reproduce with probability (birthRate + birthRateModifier*payoff)
+        if(pop.random.nextDouble() <= (birthRate+birthRateModifier*payoff))
+            pop.addPlayer(new Player(this, pop));
+    }
+    
+    public void step(SimState state){
+        
+        System.out.println("Time is " + pop.schedule.getTime());
+        
+        pop = (Population)state;
+        this.birthRate = pop.birthRate;
+        this.birthRateModifier = pop.birthRateModifier;
+        this.deathRate = pop.deathRate;
+        
+        double time = state.schedule.getTime();
+        
+        //find potential opponents
+        ArrayList<Player> potentialOpponents = findOpponents();
+        
+        //if not played yet, play
+        //doing this will update lastPlayed, as well as set the payoff value
+        if(lastPlayed < pop.schedule.getTime())
+            playGameAgainst(potentialOpponents);
+        
+        //maybe do something with the payoff gained
+            //modify energy levels, change strategy, etc.
+        usePayoff(payoff);
+        
+        tryToReproduce(payoff);
+        
+    }
+    
+    
     
     public String toString()
     {

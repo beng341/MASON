@@ -139,6 +139,14 @@ public class Population extends SimState
         return new String[]{"Rock Paper Scissors", "Modified Rock Paper Scissors",
                 "Entry Deterrence Game"};
     }
+    public ArrayList<Player> getPlayers()
+    {
+        return this.players;
+    }
+    public void setPlayers(ArrayList<Player> players)
+    {
+        this.players = players;
+    }
     
     
     @Override
@@ -157,17 +165,19 @@ public class Population extends SimState
         Player p;
         while(i++ < numPlayers)
         {
-            //initializes a player to a random strategy
+            //initializes a player to a random strategy and schedule it
             matrix = PayoffMatrices.getPayoffMatrix(random.nextBoolean());
             strategy = random.nextInt(matrix.length);
-            p = new Player(matrix, strategy);
+            p = new Player(matrix, strategy, this);
             players.add(p);
+            schedule.scheduleRepeating(p);
+            
             field.setObjectLocation(p, 
                     new Double2D(field.getWidth()*0.5 + random.nextDouble()-0.5,
                             field.getHeight()*0.5 + random.nextDouble()-0.5));
         }
         
-        schedule.scheduleRepeating(new GameRound());
+        
     }
     public Population(long seed)
     {
@@ -178,12 +188,13 @@ public class Population extends SimState
         System.exit(0);
     }
     
-    public ArrayList<Player> getPlayers()
-    {
-        return this.players;
-    }
-    public void setPlayers(ArrayList<Player> players)
-    {
-        this.players = players;
+    /**
+     * Adds a new Player to the population and schedules it to keep playing
+     * ad infinitum.
+     * @param p 
+     */
+    public void addPlayer(Player p){
+        players.add(p);
+        schedule.scheduleRepeating(p);
     }
 }
