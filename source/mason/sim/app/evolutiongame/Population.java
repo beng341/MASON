@@ -163,6 +163,7 @@ public class Population extends SimState
         int[][] matrix;
         int strategy;
         Player p;
+        schedule.scheduleRepeating(new Observer(), 1, 1);
         while(i++ < numPlayers)
         {
             //initializes a player to a random strategy and schedule it
@@ -170,13 +171,12 @@ public class Population extends SimState
             strategy = random.nextInt(matrix.length);
             p = new Player(matrix, strategy, this);
             players.add(p);
-            schedule.scheduleRepeating(p);
+            p.setStoppable(schedule.scheduleRepeating(p));
             
             field.setObjectLocation(p, 
                     new Double2D(field.getWidth()*0.5 + random.nextDouble()-0.5,
                             field.getHeight()*0.5 + random.nextDouble()-0.5));
         }
-        
         
     }
     public Population(long seed)
@@ -195,6 +195,9 @@ public class Population extends SimState
      */
     public void addPlayer(Player p){
         players.add(p);
-        schedule.scheduleRepeating(p);
+        p.setStoppable(schedule.scheduleRepeating(p));
+    }
+    public void removePlayer(Player p){
+        players.remove(p);
     }
 }

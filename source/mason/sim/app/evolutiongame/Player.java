@@ -4,6 +4,7 @@ import ec.util.MersenneTwisterFast;
 import java.util.ArrayList;
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import sim.engine.Stoppable;
 
 /**
  * The base class for a player that plays a game. Games will be two-player so
@@ -42,6 +43,13 @@ public class Player implements Steppable
     private double birthRate;
     private double birthRateModifier;
     private double deathRate;
+    
+    /**
+     * This is what is returned when the agent is put on the schedule.
+     * Call stoppable.stop() to remove this agent from the schedule.
+     */
+    private Stoppable stoppable;
+    public void setStoppable(Stoppable s){this.stoppable = s;}
     
     /**
      * 
@@ -118,7 +126,8 @@ public class Player implements Steppable
      */
     private ArrayList<Player> findOpponents(){
         
-        //for now, just choose from all possible players
+        //for now, just choose from all possible players effectively making the
+        //lastPlayed time useless
         
         return pop.getPlayers();
     }
@@ -175,9 +184,30 @@ public class Player implements Steppable
             pop.addPlayer(new Player(this, pop));
     }
     
+    /**
+     * Using the agents death rate and possibly energy level and most recent payoff
+     * the agent will check to see if it should die.
+     * If an agent dies it is removed from the population and performs no more
+     * actions.
+     */
+    private void tryToDie(){
+        if(pop.random.nextDouble() <= (deathRate)){
+            pop.removePlayer(this);
+            if(stoppable != null)
+                stoppable.stop();
+            else
+                System.out.println("Stoppable is null");
+        }
+    }
+    
     public void step(SimState state){
         
-        System.out.println("Time is " + pop.schedule.getTime());
+        if(stoppable == null){
+            System.out.println("Stoppable is null");
+        }
+        
+        
+        //System.out.println("Time is " + pop.schedule.getTime());
         
         pop = (Population)state;
         this.birthRate = pop.birthRate;
@@ -186,10 +216,11 @@ public class Player implements Steppable
         
         double time = state.schedule.getTime();
         
-        //find potential opponents
+        //find potential opponents (currently does not take into account the last
+        //played time)
         ArrayList<Player> potentialOpponents = findOpponents();
         
-        //if not played yet, play
+        //if not played yet this round, play now
         //doing this will update lastPlayed, as well as set the payoff value
         if(lastPlayed < pop.schedule.getTime())
             playGameAgainst(potentialOpponents);
@@ -199,6 +230,8 @@ public class Player implements Steppable
         usePayoff(payoff);
         
         tryToReproduce(payoff);
+        
+        tryToDie();
         
     }
     

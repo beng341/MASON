@@ -39,3 +39,4 @@ might be more historical
 
 Try to get rid of GameRound class. It seems like every Steppable object is run at each step. We can keep track of agents that have played by having two collections of agents in the Population class and just randomly pulling from the collection that hasn't been played yet. (Only playing if you yourself started in the collection of unplayed agents)
 This should simplify the GUI aspect.
+How do we know when the step is over? We could have each agent check if the number of unplayed agents is less than 2 but that's not very nice. Is there a way to do something in the controller after an event?
