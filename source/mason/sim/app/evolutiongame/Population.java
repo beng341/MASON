@@ -51,6 +51,11 @@ public class Population extends SimState
      */
     double deathRate = 0.5;
     
+    /**
+     * True if data should be printed to the console at each step.
+     */
+    boolean printData = false;
+    
     long numPlayers = 10000;//should probably have at least 1000 for anything useful
     
     int strategyDistribution = RANDOMCHOICES;
@@ -64,6 +69,13 @@ public class Population extends SimState
     public static int RockPaperScissors = 0;
     public static int ModifiedRockPaperScissors = 1;
     public static int EntryDeterrence = 2;
+    
+    public boolean getPrintData(){
+        return this.printData;
+    }
+    public void setPrintData(boolean print){
+        this.printData = print;
+    }
     
     /*
      * Methods to let user set up the number of players 

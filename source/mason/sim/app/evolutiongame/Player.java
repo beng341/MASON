@@ -202,19 +202,10 @@ public class Player implements Steppable
     
     public void step(SimState state){
         
-        if(stoppable == null){
-            System.out.println("Stoppable is null");
-        }
-        
-        
-        //System.out.println("Time is " + pop.schedule.getTime());
-        
         pop = (Population)state;
         this.birthRate = pop.birthRate;
         this.birthRateModifier = pop.birthRateModifier;
         this.deathRate = pop.deathRate;
-        
-        double time = state.schedule.getTime();
         
         //find potential opponents (currently does not take into account the last
         //played time)
