@@ -1,10 +1,16 @@
 package sim.app.evolutiongame;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import sim.app.evolutiongame.modules.PlayGame.PlayGame;
 import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
 import sim.util.Double2D;
+
 
 /**
  * Holds a number of Players that will play a game against each other and allow
@@ -166,6 +172,11 @@ public class Population extends SimState
     {
         super.start();
         
+        //this should have a list of all methods that get called on every player
+        //at every step
+        //the list is decided by the configuration file that I should create
+        Method[] methods = getMethods();
+        
         PayoffMatrices.setGame(gameNumber);
         
         field.clear();
@@ -211,5 +222,46 @@ public class Population extends SimState
     }
     public void removePlayer(Player p){
         players.remove(p);
+    }
+
+    /**
+     * Generates a list of all methods that should be run for each player in
+     * each time step. Methods should all have the signature:
+     *  public static void run(Population state, Player p)
+     * The classes that the methods are in should be specified in the
+     * configuration file.
+     * @return 
+     */
+    private Method[] getMethods() {
+        
+        Class c = null;
+        try {
+            c = Class.forName("sim.app.evolutiongame.modules.PlayGame.PlayGame");
+            
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Method m = null;
+        try {
+            m = c.getMethod("run", Population.class, Player.class);
+        } catch (NoSuchMethodException ex) {
+            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SecurityException ex) {
+            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        //to invoke:
+        try {
+            //null is because the method is static
+            m.invoke(null, this, new Player(new int[0][0], this));
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalArgumentException ex) {
+            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvocationTargetException ex) {
+            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return null;
     }
 }
