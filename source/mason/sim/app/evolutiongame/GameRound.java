@@ -44,7 +44,6 @@ public class GameRound implements Steppable
     @Override
     public void step(SimState state)
     {
-        
         Population pop = (Population)state;
         ArrayList<Player> players = pop.getPlayers();
         ArrayList<Player> newPlayers = new ArrayList<>();
@@ -69,7 +68,6 @@ public class GameRound implements Steppable
             //System.out.println("The proportion of players at strategy " + i + " is " + (strategyCount.get(i)*1.0)/players.size());
             System.out.println("    The numbers of players at strategy " + i + " is " + strategyCount.get(i));
         }
-        
         
         Player p1;
         Player p2;

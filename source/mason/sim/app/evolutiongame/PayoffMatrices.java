@@ -4,8 +4,11 @@ import sim.app.evolutiongame.Util.Pair;
 
 /**
  * A static class to put all the payoff matrices in and associate them with a
- * game number. We're allowed to have two types of player so each type of game
- * needs to be given two payoff matrices even if they're the same matrix.
+ * game number. We use two-player games so there are two payoff matrices 
+ * associated with each game. If Player 1 plays strategy i and Player 2 plays 
+ * strategy j, Player 1 will receive a payoff from the (i,j)-th index of the first
+ * matrix and Player 2 will receive a payoff from the (i,j)-th index of the second
+ * matrix.
  * 
  * To add a game type here you also must add a static int field in Population 
  * and an entry in the domGameNumber() method also in Population class.
