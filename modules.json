@@ -1,1 +1,21 @@
-{"test":["Hello","Goodbye"],"modules":["Test String","I hope this works"]}
+{
+  "All Module Implementations": {
+    "Reproduction": [
+      "ReproductionFillerTest",
+      "Reproduction"
+    ],
+    "Movement": [
+      "Movement"
+    ],
+    "PlayGame": [
+      "PlayGame",
+      "PlayGame2",
+      "PlayGameMultiPlayer"
+    ]
+  },
+  "Modules In Use": {
+    "Reproduction": "Reproduction",
+    "Movement": "Movement",
+    "PlayGame": "PlayGame"
+  }
+}

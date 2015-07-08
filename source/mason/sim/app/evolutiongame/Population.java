@@ -1,21 +1,8 @@
 package sim.app.evolutiongame;
 
-import com.google.gson.Gson;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import com.google.gson.internal.LinkedTreeMap;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import sim.app.evolutiongame.modules.PlayGame.PlayGame;
 import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
 import sim.util.Double2D;
@@ -210,8 +197,11 @@ public class Population extends SimState
                             field.getHeight()*0.5 + random.nextDouble()-0.5));
         }
         
-        HashMap<String, ArrayList<String>> modules = findModuleImplementations();
-        readModulesFromFile(this);
+        
+        HashMap<String, Object> toUse = Config.findModulesInUse();
+        Config.generateConfigFile();
+        HashMap<String, Object> configElements = Config.readConfigFile(this);
+        Config.getMethods((LinkedTreeMap<String, String>)configElements.get("Modules In Use"));
     }
     public Population(long seed)
     {
@@ -233,126 +223,5 @@ public class Population extends SimState
     }
     public void removePlayer(Player p){
         players.remove(p);
-    }
-    
-    /**
-     * Finds a list of all java classes that are in each module subdirectory.
-     * Associates with each module the classes under it.
-     * Ex: If /modules contains folders "play" and "move", with classes "play1",
-     * "play2", "move1", "move2" then this will return a map of "play" -> {play1, play2},
-     * "move" -> {move1, move2}.
-     * This will likely assume that /modules contains only folders and that each
-     * folder within /modules contains only files providing an implementation
-     * of that module.
-     */
-    private static HashMap<String, ArrayList<String>> findModuleImplementations() {
-        String path = "source/mason/sim/app/evolutiongame/modules";
-        FileFilter folderFilter = new FileFilter() {
-            @Override
-            public boolean accept(File pathname){
-                return pathname.isDirectory();
-            }};
-        FileFilter fileFilter = new FileFilter() {
-            @Override
-            public boolean accept(File pathname){
-                return pathname.isFile();
-            }};
-        
-        
-        File folder = new File(path);
-        
-        HashMap<String, ArrayList<String>> map = new HashMap<>();
-        ArrayList<String> implementations = null;
-        String s = folder.getAbsolutePath();
-        
-        for(File module: folder.listFiles(folderFilter)) {
-            for(File implementation: module.listFiles(fileFilter)) {
-                if(implementations == null)
-                    implementations = new ArrayList<>();
-                implementations.add(implementation.getName().replace(".java", ""));
-            }
-            if(implementations != null) {
-                map.put(module.getName(), implementations);
-                implementations = null;
-            }
-            
-        }
-        
-        return map;
-    }
-    
-    private static void readModulesFromFile(Population p) {
-        Gson gson = new Gson();
-        
-        String[] test = new String[]{"Test String", "I hope this works"};
-        
-        HashMap<String, Object> everythingMap = new HashMap<>();
-        
-//        HashMap<String, 
-        
-        everythingMap.put("modules", test);
-        everythingMap.put("test", new String[]{"Hello", "Goodbye"});
-        
-        //example of writing to a file
-        System.out.println("Convert Java object to JSON format and save to file.");
-        try (FileWriter writer = new FileWriter("modules.json")) {
-          writer.write(gson.toJson(everythingMap));
-        } catch (IOException e) {
-        }
-        
-        
-        //example of reading from a file
-        System.out.println("Read JSON from file, convert JSON string back to object");
-        Object o;
-        try (BufferedReader reader = new BufferedReader(new FileReader("modules.json"))) {
-              o = gson.fromJson(reader, HashMap.class);
-        } catch (FileNotFoundException e) {
-            System.out.println("Finised with JSON examples now.");
-        } catch (IOException e) {
-            System.out.println("Finised with JSON examples now.");
-        }
-        
-        System.out.println("Finised with JSON examples now.");
-    }
-
-    /**
-     * Generates a list of all methods that should be run for each player in
-     * each time step. Methods should all have the signature:
-     *  public static void run(Population state, Player p)
-     * The classes that the methods are in should be specified in the
-     * configuration file.
-     * @return 
-     */
-    private Method[] getMethods() {
-        
-        Class c = null;
-        try {
-            c = Class.forName("sim.app.evolutiongame.modules.PlayGame.PlayGame");
-            
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        Method m = null;
-        try {
-            m = c.getMethod("run", Population.class, Player.class);
-        } catch (NoSuchMethodException ex) {
-            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SecurityException ex) {
-            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        //to invoke:
-        try {
-            //null is because the method is static
-            m.invoke(null, this, new Player(new int[0][0], this));
-        } catch (IllegalAccessException ex) {
-            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalArgumentException ex) {
-            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InvocationTargetException ex) {
-            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        return null;
     }
 }
