@@ -11,11 +11,15 @@
       "PlayGame",
       "PlayGame2",
       "PlayGameMultiPlayer"
+    ],
+    "PotentialPartnerDiscovery": [
+      "AllPlayers"
     ]
   },
   "Modules In Use": {
     "Reproduction": "Reproduction",
     "Movement": "Movement",
-    "PlayGame": "PlayGame"
+    "PlayGame": "PlayGame",
+    "PotentialPartnerDiscovery": "AllPlayers"
   }
 }

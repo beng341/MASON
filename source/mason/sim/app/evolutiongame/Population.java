@@ -1,6 +1,7 @@
 package sim.app.evolutiongame;
 
 import com.google.gson.internal.LinkedTreeMap;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import sim.engine.SimState;
@@ -33,7 +34,10 @@ public class Population extends SimState
      */
     public Continuous2D field = new Continuous2D(1.0, 500, 500);
     
-    
+    /**
+     * A list of methods that are run once in each step() method of each player.
+     */
+    public Method[] playerMethods;
     
     /***************************************************************************
     * Variables for simulation parameters:
@@ -168,10 +172,11 @@ public class Population extends SimState
     {
         super.start();
         
-        //this should have a list of all methods that get called on every player
-        //at every step
-        //the list is decided by the configuration file that I should create
-        //Method[] methods = getMethods();
+        //get list of methods that each player will run at every step
+        Config.generateConfigFile();
+        HashMap<String, Object> configElements = Config.readConfigFile(this);
+        this.playerMethods = Config.getMethods(
+                (LinkedTreeMap<String, String>)configElements.get("Modules In Use"));
         
         PayoffMatrices.setGame(gameNumber);
         
@@ -198,10 +203,6 @@ public class Population extends SimState
         }
         
         
-        HashMap<String, Object> toUse = Config.findModulesInUse();
-        Config.generateConfigFile();
-        HashMap<String, Object> configElements = Config.readConfigFile(this);
-        Config.getMethods((LinkedTreeMap<String, String>)configElements.get("Modules In Use"));
     }
     public Population(long seed)
     {

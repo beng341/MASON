@@ -13,7 +13,7 @@ import sim.app.evolutiongame.Population;
 public class PlayGame {
     
     
-    public static void run(Population state, Player p) {
+    public static void run(Population state, Player p, Object args) {
         
     }
 }
