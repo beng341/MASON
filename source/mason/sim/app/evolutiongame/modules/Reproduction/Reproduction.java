@@ -9,7 +9,8 @@ import sim.app.evolutiongame.Population;
  */
 public class Reproduction {
 
-    public static void run(Population state, Player p, Object args) {
+    public static Object run(Population state, Player p, Object args) {
         
+        return null;
     }
 }

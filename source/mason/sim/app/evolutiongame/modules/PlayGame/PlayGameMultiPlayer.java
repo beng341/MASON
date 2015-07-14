@@ -8,8 +8,9 @@ import sim.app.evolutiongame.Population;
  * @author Ben Armstrong
  */
 public class PlayGameMultiPlayer {
-    
-    public static void run(Population state, Player p, Object args) {
+
+    public static Object run(Population state, Player p, Object args) {
         
+        return null;
     }
 }

@@ -2,7 +2,6 @@ package sim.app.evolutiongame;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,7 +10,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,8 +64,16 @@ public class Config {
      * @return 
      */
     public static HashMap<String, Object> findModuleImplementations() {
-        FileFilter folderFilter = (File pathname) -> pathname.isDirectory();
-        FileFilter fileFilter = (File pathname) -> pathname.isFile();
+        FileFilter folderFilter = new FileFilter() {
+            @Override
+            public boolean accept(File pathname){
+                return pathname.isDirectory();
+            }};
+        FileFilter fileFilter = new FileFilter() {
+            @Override
+            public boolean accept(File pathname){
+                return pathname.isFile();
+            }};
         
         File folder = new File(MODULE_PATH);
         
