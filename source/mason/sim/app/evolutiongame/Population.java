@@ -37,7 +37,14 @@ public class Population extends SimState
     /**
      * A list of methods that are run once in each step() method of each player.
      */
-    public Method[] playerMethods;
+    public HashMap<String, Method> playerMethods;
+    
+    /**
+     * A list of variables of each player. Key for player 17's last_played 
+     * time will be 17_last_played. The result should then be cast to a Double
+     * (or whatever type is appropriate).
+     */
+    public HashMap<String, Object> playerVariables;
     
     /***************************************************************************
     * Variables for simulation parameters:
@@ -60,7 +67,7 @@ public class Population extends SimState
     /**
      * True if data should be printed to the console at each step.
      */
-    boolean printData = false;
+    boolean printData = true;
     
     long numPlayers = 10000;//should probably have at least 1000 for anything useful
     
@@ -207,6 +214,7 @@ public class Population extends SimState
     public Population(long seed)
     {
         super(seed);
+        this.playerVariables = new HashMap<>();
     }
     public static void main(String[] args) {
         doLoop(Population.class, args);
@@ -224,5 +232,14 @@ public class Population extends SimState
     }
     public void removePlayer(Player p){
         players.remove(p);
+    }
+
+    /**
+     * Gets the specified variable from the list of all player variables.
+     * @param name Name of the variable, this should be something like 17_last_played.
+     * @return
+     */
+    Object getPlayerVariable(String name) {
+        return this.playerVariables.get(name);
     }
 }

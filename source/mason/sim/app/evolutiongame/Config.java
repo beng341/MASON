@@ -153,11 +153,11 @@ public class Config {
      * configuration file.
      * @return 
      */
-    public static Method[] getMethods(LinkedTreeMap<String, String> modules) {
+    public static HashMap<String, Method> getMethods(LinkedTreeMap<String, String> modules) {
         
-        Method[] methods = new Method[modules.size()];
+        //Method[] methods = new Method[modules.size()];
+        HashMap<String, Method> methods = new HashMap<String, Method>();
         
-        int currentIndex = 0;
         for(String module: modules.keySet()) {
             Class c = null;
             try {
@@ -167,16 +167,15 @@ public class Config {
                 Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
             }
             
-            Method m = null;
+            Method m;
             try {
                 m = c.getMethod("run", Population.class, Player.class, Object.class);
-                methods[currentIndex] = m;
+                methods.put(module, m);
             } catch (NoSuchMethodException ex){
                 System.out.println("No run() method found in " + c.toString());
             } catch(SecurityException ex) {
                 Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
             }
-            currentIndex++;
         }
         
         return methods;

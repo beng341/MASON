@@ -1,7 +1,11 @@
 package sim.app.evolutiongame;
 
 import ec.util.MersenneTwisterFast;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.engine.Stoppable;
@@ -54,6 +58,18 @@ public class Player implements Steppable
     public void setStoppable(Stoppable s){this.stoppable = s;}
     
     /**
+     * The id that the next player should be assigned. This should be incremented
+     * after each assignment. Unless there are over 2 billion different players
+     * in any given run it should be fine to use an int rather than a long.
+     */
+    private static int id_count = 0;
+    
+    /**
+     * The id of this player. No other player should have this id.
+     */
+    private int id;
+    
+    /**
      * 
      * @param payoff Matrix representing payoff functions. This player gets the 
      * payoff at p[i][j] if it plays strategy i and the other player does
@@ -64,18 +80,21 @@ public class Player implements Steppable
         this.payoffMatrix = payoff;
         this.strategy = findStrategy();
         this.pop = pop;
+        this.id = id_count++;
     }
     public Player(int[][] payoff, int strategy, Population pop)
     {
         this.payoffMatrix = payoff;
         this.strategy = strategy;
         this.pop = pop;
+        this.id = id_count++;
     }
     public Player(Player parent, Population pop)
     {
         this.payoffMatrix = parent.payoffMatrix;
         this.strategy = parent.strategy;
         this.pop = pop;
+        this.id = id_count++;
     }
     
     /**
@@ -202,16 +221,74 @@ public class Player implements Steppable
         }
     }
     
+    /**
+     * Gets the "variable" of the specified name from the global variable list 
+     * in this Player's Population. The result should be cast to it's proper 
+     * type.
+     * This approach is not great for security but I suspect it is the
+     * fastest and certainly is the most general approach I came up with.
+     * @param name Name of the variable desired. This is prepended with the id 
+     * of this player.
+     * @return 
+     */
+    public Object getVariable(String name) {
+        name = id + "_" + name;
+        
+        return this.pop.getPlayerVariable(name);
+    }
+    
+    /**
+     * Invokes a method given by the user and catches any errors.
+     * @param m
+     * @param args
+     * @return 
+     */
+    public Object invokeMethod(Method m, Object args) {
+        try {
+            return m.invoke(null, pop, this, null);
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(Player.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalArgumentException ex) {
+            Logger.getLogger(Player.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvocationTargetException ex) {
+            Logger.getLogger(Player.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return null;
+    }
+    
     public void step(SimState state){
         
         pop = (Population)state;
         this.birthRate = pop.birthRate;
         this.birthRateModifier = pop.birthRateModifier;
         this.deathRate = pop.deathRate;
+//        //to invoke:
+//        try {
+//            //first null is because the method is static
+//            m.invoke(null, null, new Player(new int[0][0], null));
+//        } catch (IllegalAccessException ex) {
+//            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (IllegalArgumentException ex) {
+//            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (InvocationTargetException ex) {
+//            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+        
+        Method currentMethod;
+        Object result = null;
+        if(pop.playerMethods.containsKey("PotentialPartnerDiscovery")){
+            currentMethod = pop.playerMethods.get("PotentialPartnerDiscovery");
+            result = this.invokeMethod(currentMethod, null);
+        }
         
         //find potential opponents (currently does not take into account the last
         //played time)
         ArrayList<Player> potentialOpponents = findOpponents();
+        
+        if(result != null) {
+            potentialOpponents = (ArrayList<Player>)result;
+        }
         
         //if not played yet this round, play now
         //doing this will update lastPlayed, as well as set the payoff value
