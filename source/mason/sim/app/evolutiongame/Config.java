@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,18 +33,23 @@ public class Config {
      * method will create/overwrite the json configuration file in the root
      * project directory.
      * Currently the config file consists of a list of implementations of each
-     * module and a list of which implementation to use for each module.
+     * module and a list of which implementation to use for each module. The
+     * default config file will use all modules that have at least one
+     * implementation.
      * @param modules 
      */
     public static void generateConfigFile() {
         
+        LinkedHashMap<String, Object> modules = findModuleImplementations();
+        LinkedHashMap<String, String> defaults = getDefaultImplementations(modules);
+        LinkedHashMap<String, String> notInUse = getModulesNotInUse(modules, (HashSet<String>)defaults.keySet());
         
-        HashMap<String, Object> modules = Config.findModuleImplementations();
-        HashMap<String, String> defaults = getDefaultImplementations(modules);
-        
-        HashMap<String, Object> output = new HashMap<>();
+        //use a LinkedHashMap to preserve order (which keeps the output file in
+        //a more readable format).
+        LinkedHashMap<String, Object> output = new LinkedHashMap<>();
         output.put("All Module Implementations", modules);
-        output.put("Modules In Use", defaults);
+        output.put("Modules In Use (Ordered)", defaults);
+        output.put("Modules Not In Use", modules.keySet());
         
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try (FileWriter writer = new FileWriter(FILE_NAME)) {
@@ -125,6 +132,10 @@ public class Config {
         return defaults;
     }
     
+    private static LinkedHashMap<String, String> getModulesNotInUse(HashMap<String, Object> modules, HashSet<String> inUse) {
+        return null;
+    }
+    
     /**
      * Reads in the config file and puts it into a hashmap.
      * @param p
@@ -151,12 +162,13 @@ public class Config {
      *  public static void run(Population state, Player p)
      * The classes that the methods are in should be specified in the
      * configuration file.
+     * @param modules
+     * @param order List of Modules, in the order that they should be run.
      * @return 
      */
-    public static HashMap<String, Method> getMethods(LinkedTreeMap<String, String> modules) {
+    public static LinkedHashMap<String, Method> getMethods(LinkedTreeMap<String, String> modules) {
         
-        //Method[] methods = new Method[modules.size()];
-        HashMap<String, Method> methods = new HashMap<String, Method>();
+        LinkedHashMap<String, Method> methods = new LinkedHashMap<>();
         
         for(String module: modules.keySet()) {
             Class c = null;
@@ -179,35 +191,5 @@ public class Config {
         }
         
         return methods;
-        
-//        Class c = null;
-//        try {
-//            c = Class.forName(MODULE_PACKAGE + ".PlayGame.PlayGame");
-//            
-//        } catch (ClassNotFoundException ex) {
-//            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        Method m = null;
-//        try {
-//            m = c.getMethod("run", Population.class, Player.class);
-//        } catch (NoSuchMethodException ex) {
-//            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (SecurityException ex) {
-//            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        
-//        //to invoke:
-//        try {
-//            //first null is because the method is static
-//            m.invoke(null, null, new Player(new int[0][0], null));
-//        } catch (IllegalAccessException ex) {
-//            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (IllegalArgumentException ex) {
-//            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InvocationTargetException ex) {
-//            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        
-//        return null;
     }
 }

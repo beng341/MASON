@@ -4,6 +4,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
 import sim.util.Double2D;
@@ -37,7 +38,7 @@ public class Population extends SimState
     /**
      * A list of methods that are run once in each step() method of each player.
      */
-    public HashMap<String, Method> playerMethods;
+    public LinkedHashMap<String, Method> playerMethods;
     
     /**
      * A list of variables of each player. Key for player 17's last_played 
@@ -180,10 +181,10 @@ public class Population extends SimState
         super.start();
         
         //get list of methods that each player will run at every step
-        Config.generateConfigFile();
+        //Config.generateConfigFile();
         HashMap<String, Object> configElements = Config.readConfigFile(this);
         this.playerMethods = Config.getMethods(
-                (LinkedTreeMap<String, String>)configElements.get("Modules In Use"));
+                (LinkedTreeMap<String, String>)configElements.get("Modules In Use (Ordered)"));
         
         PayoffMatrices.setGame(gameNumber);
         
@@ -241,5 +242,14 @@ public class Population extends SimState
      */
     Object getPlayerVariable(String name) {
         return this.playerVariables.get(name);
+    }
+
+    /**
+     * Gets the specified variable from the list of all player variables.
+     * @param name Name of the variable, this should be something like 17_last_played.
+     * @return
+     */
+    void storePlayerVariable(String name, Object value) {
+        this.playerVariables.put(name, value);
     }
 }

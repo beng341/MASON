@@ -7,6 +7,9 @@
     "Movement": [
       "Movement"
     ],
+    "FindOpponents": [
+      "FindOpponents"
+    ],
     "PlayGame": [
       "PlayGame",
       "PlayGame2",
@@ -17,9 +20,10 @@
     ]
   },
   "Modules In Use": {
+    "PotentialPartnerDiscovery": "AllPlayers"
+    "FindOpponents": "FindOpponents",
     "Reproduction": "Reproduction",
     "Movement": "Movement",
     "PlayGame": "PlayGame",
-    "PotentialPartnerDiscovery": "AllPlayers"
   }
 }

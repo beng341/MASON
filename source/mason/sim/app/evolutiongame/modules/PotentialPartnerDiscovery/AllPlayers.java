@@ -12,6 +12,13 @@ import sim.app.evolutiongame.Population;
  */
 public class AllPlayers {
     
+    /**
+     * 
+     * @param state
+     * @param p
+     * @param args
+     * @return An ArrayList<Player> with all players in the simulation.
+     */
     public static Object run(Population state, Player p, Object args) {
         return state.getPlayers();
     }

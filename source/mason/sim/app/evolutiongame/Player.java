@@ -237,6 +237,12 @@ public class Player implements Steppable
         return this.pop.getPlayerVariable(name);
     }
     
+    public void storeVariable(String name, Object value) {
+        name = id + "_" + name;
+        
+        this.pop.storePlayerVariable(name, value);
+    }
+    
     /**
      * Invokes a method given by the user and catches any errors.
      * @param m
@@ -277,14 +283,33 @@ public class Player implements Steppable
         
         Method currentMethod;
         Object result = null;
+        Object arguments = null;
+        //Check if there is a method for each module, if there is then do whatever
+        //code is specific to that module
+        //Ensure that all pre-conditions are met before attempting to run the
+        //method. This means ensuring the method exists, all necessary variables
+        //exist and possibly other conditions
+        
+        //try to find a list of people this agent is allowed to play against
         if(pop.playerMethods.containsKey("PotentialPartnerDiscovery")){
             currentMethod = pop.playerMethods.get("PotentialPartnerDiscovery");
-            result = this.invokeMethod(currentMethod, null);
+            result = this.invokeMethod(currentMethod, arguments);
+            storeVariable("potential_partners", result);
         }
+        
+        //if there is a list of potential partners, try to find a specific one
+        //to play against
+        if(pop.playerMethods.containsKey("FindOpponent") && pop.playerVariables.containsKey("potential_partners")){
+            currentMethod = pop.playerMethods.get("FindOpponent");
+            arguments = getVariable("potential_partners");
+            result = this.invokeMethod(currentMethod, arguments);
+            storeVariable("partners", result);
+        }
+        
         
         //find potential opponents (currently does not take into account the last
         //played time)
-        ArrayList<Player> potentialOpponents = findOpponents();
+        ArrayList<Player> potentialOpponents = null;
         
         if(result != null) {
             potentialOpponents = (ArrayList<Player>)result;
