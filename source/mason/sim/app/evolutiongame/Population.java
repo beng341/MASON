@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import sim.app.evolutiongame.modules.Module;
 import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
 import sim.util.Double2D;
@@ -38,7 +39,7 @@ public class Population extends SimState
     /**
      * A list of methods that are run once in each step() method of each player.
      */
-    public LinkedHashMap<String, Method> playerMethods;
+    public LinkedHashMap<String, Util.Pair<Module, Method>> playerModules;
     
     /**
      * A list of variables of each player. Key for player 17's last_played 
@@ -181,11 +182,10 @@ public class Population extends SimState
         super.start();
         
         //get list of methods that each player will run at every step
-        //Config.generateConfigFile();
+        Config.generateConfigFile();
         HashMap<String, Object> configElements = Config.readConfigFile(this);
-        this.playerMethods = Config.getMethods(
+        this.playerModules = Config.getMethods(
                 (LinkedTreeMap<String, String>)configElements.get("Modules In Use (Ordered)"));
-        
         PayoffMatrices.setGame(gameNumber);
         
         field.clear();

@@ -48,9 +48,7 @@ public class Util {
             if(!o.getClass().equals(this.getClass()))
                 return false;
             Pair<?,?> p = (Pair<?,?>)o;
-            if(p.getFirst().equals(this.getFirst()) && p.getSecond().equals(this.getSecond()))
-                return true;
-            return false;
+            return p.getFirst().equals(this.getFirst()) && p.getSecond().equals(this.getSecond());
         }
     }
 }

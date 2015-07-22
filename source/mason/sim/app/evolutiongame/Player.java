@@ -269,17 +269,6 @@ public class Player implements Steppable
         this.birthRate = pop.birthRate;
         this.birthRateModifier = pop.birthRateModifier;
         this.deathRate = pop.deathRate;
-//        //to invoke:
-//        try {
-//            //first null is because the method is static
-//            m.invoke(null, null, new Player(new int[0][0], null));
-//        } catch (IllegalAccessException ex) {
-//            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (IllegalArgumentException ex) {
-//            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InvocationTargetException ex) {
-//            Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
-//        }
         
         Method currentMethod;
         Object result = null;
@@ -291,16 +280,16 @@ public class Player implements Steppable
         //exist and possibly other conditions
         
         //try to find a list of people this agent is allowed to play against
-        if(pop.playerMethods.containsKey("PotentialPartnerDiscovery")){
-            currentMethod = pop.playerMethods.get("PotentialPartnerDiscovery");
+        if(pop.playerModules.containsKey("PotentialPartnerDiscovery")){
+            currentMethod = pop.playerModules.get("PotentialPartnerDiscovery").getSecond();
             result = this.invokeMethod(currentMethod, arguments);
             storeVariable("potential_partners", result);
         }
         
         //if there is a list of potential partners, try to find a specific one
         //to play against
-        if(pop.playerMethods.containsKey("FindOpponent") && pop.playerVariables.containsKey("potential_partners")){
-            currentMethod = pop.playerMethods.get("FindOpponent");
+        if(pop.playerModules.containsKey("FindOpponent") && pop.playerVariables.containsKey("potential_partners")){
+            currentMethod = pop.playerModules.get("FindOpponent").getSecond();
             arguments = getVariable("potential_partners");
             result = this.invokeMethod(currentMethod, arguments);
             storeVariable("partners", result);

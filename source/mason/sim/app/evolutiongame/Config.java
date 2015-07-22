@@ -15,8 +15,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import sim.app.evolutiongame.Util.Pair;
+import sim.app.evolutiongame.modules.Module;
 
 /**
  *
@@ -42,14 +46,14 @@ public class Config {
         
         LinkedHashMap<String, Object> modules = findModuleImplementations();
         LinkedHashMap<String, String> defaults = getDefaultImplementations(modules);
-        LinkedHashMap<String, String> notInUse = getModulesNotInUse(modules, (HashSet<String>)defaults.keySet());
+        HashSet<String> notInUse = getModulesNotInUse(modules, defaults.keySet());
         
         //use a LinkedHashMap to preserve order (which keeps the output file in
         //a more readable format).
         LinkedHashMap<String, Object> output = new LinkedHashMap<>();
         output.put("All Module Implementations", modules);
         output.put("Modules In Use (Ordered)", defaults);
-        output.put("Modules Not In Use", modules.keySet());
+        output.put("Modules Not In Use", notInUse);
         
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try (FileWriter writer = new FileWriter(FILE_NAME)) {
@@ -70,7 +74,7 @@ public class Config {
      * of that module.
      * @return 
      */
-    public static HashMap<String, Object> findModuleImplementations() {
+    public static LinkedHashMap<String, Object> findModuleImplementations() {
         FileFilter folderFilter = new FileFilter() {
             @Override
             public boolean accept(File pathname){
@@ -84,7 +88,7 @@ public class Config {
         
         File folder = new File(MODULE_PATH);
         
-        HashMap<String, Object> map = new HashMap<>();
+        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
         ArrayList<String> implementations = null;
         String s = folder.getAbsolutePath();
         
@@ -111,9 +115,9 @@ public class Config {
      * @param modules
      * @return A map of module names to the default implementation of that module.
      */
-    private static HashMap<String, String> getDefaultImplementations(HashMap<String, Object> modules){
+    private static LinkedHashMap<String, String> getDefaultImplementations(HashMap<String, Object> modules){
         
-        HashMap<String, String> defaults = new HashMap<>();
+        LinkedHashMap<String, String> defaults = new LinkedHashMap<>();
         
         for(String module_name: modules.keySet()) {
             ArrayList<String> implementations = (ArrayList<String>)modules.get(module_name);
@@ -132,8 +136,16 @@ public class Config {
         return defaults;
     }
     
-    private static LinkedHashMap<String, String> getModulesNotInUse(HashMap<String, Object> modules, HashSet<String> inUse) {
-        return null;
+    private static HashSet<String> getModulesNotInUse(HashMap<String, Object> modules, Set<String> inUse) {
+        HashSet<String> notInUse = new HashSet<>();
+        
+        for(String module: modules.keySet()) {
+            if(!inUse.contains(module)) {
+                notInUse.add(module);
+            }
+        }
+        
+        return notInUse;
     }
     
     /**
@@ -166,9 +178,9 @@ public class Config {
      * @param order List of Modules, in the order that they should be run.
      * @return 
      */
-    public static LinkedHashMap<String, Method> getMethods(LinkedTreeMap<String, String> modules) {
+    public static LinkedHashMap<String, Pair<Module, Method>> getMethods(LinkedTreeMap<String, String> modules) {
         
-        LinkedHashMap<String, Method> methods = new LinkedHashMap<>();
+        LinkedHashMap<String, Pair<Module, Method>> methods = new LinkedHashMap<>();
         
         for(String module: modules.keySet()) {
             Class c = null;
@@ -182,11 +194,15 @@ public class Config {
             Method m;
             try {
                 m = c.getMethod("run", Population.class, Player.class, Object.class);
-                methods.put(module, m);
+                methods.put(module, new Pair<>((Module)c.newInstance(), m));
             } catch (NoSuchMethodException ex){
                 System.out.println("No run() method found in " + c.toString());
             } catch(SecurityException ex) {
                 Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InstantiationException ex) {
+                Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex) {
+                Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         
