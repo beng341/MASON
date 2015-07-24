@@ -2,7 +2,6 @@ package sim.app.evolutiongame.modules.FindOpponents;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 import sim.app.evolutiongame.Player;
 import sim.app.evolutiongame.Population;
 import sim.app.evolutiongame.modules.Module;
@@ -11,8 +10,7 @@ import sim.app.evolutiongame.modules.Module;
  *
  * @author Ben Armstrong
  */
-public class FindOpponents implements Module {
-    Player player;
+public class FindOpponents extends Module {
     /**
      * Finds and saves an ArrayList<Player> containing a single player, randomly
      * chosen from the given list of potential opponents.
@@ -21,13 +19,14 @@ public class FindOpponents implements Module {
      */
     @Override
     public void run(Population state, Player p) {
-        this.player = p;
+        this.p = p;
+        this.arguments = new String[]{"potential_opponents"};
         //1 - get arguments
-        HashMap<String, Object> arguments = getArguments();
-        if(null == arguments) {
+        HashMap<String, Object> args = getArguments();
+        if(null == args) {
             return;
         }
-        ArrayList<Player> players = (ArrayList<Player>)arguments.get("potential_opponents");
+        ArrayList<Player> players = (ArrayList<Player>)args.get("potential_opponents");
         
         //2 - do what the module actually does
         Player result;
@@ -40,17 +39,5 @@ public class FindOpponents implements Module {
         HashMap<String, Object> results = new HashMap<>();
         results.put("opponent", result);
         saveResults(results);
-    }
-
-    @Override
-    public HashMap<String, Object> getArguments() {
-        return null;
-    }
-
-    @Override
-    public void saveResults(HashMap<String, Object> results) {
-        for(String name: results.keySet()){
-            player.storeVariable(name, results.get(name));
-        }
     }
 }

@@ -17,7 +17,9 @@ import sim.app.evolutiongame.Population;
  * code.
  * @author armstrob
  */
-public interface Module {
+public abstract class Module {
+    public Player p;
+    public String[] arguments;
     /**
      * Finds all arguments used by this module and maps their name to their 
      * value. This module itself should be aware of which arguments it needs, if
@@ -26,16 +28,28 @@ public interface Module {
      * @return The arguments this module will use, or null if not all of the
      * arguments exist.
      */
-    public HashMap<String, Object> getArguments();
+    public HashMap<String, Object> getArguments(){
+        HashMap<String, Object> arguments = new HashMap<>();
+        for(String arg: this.arguments) {
+            arguments.put(arg, p.getVariable(arg));
+        }
+        return arguments;
+    }
     /**
-     * 
+     * Perform the actual action that the module is meant to do. Should call
+     * getArguments() at the beginning and saveResults() at the end, as necessary.
      * @param state
      * @param p
      */
-    public void run(Population state, Player p);
+    public abstract void run(Population state, Player p);
     /**
-     * 
+     * Save each element in the given map's value list as its key in the list of
+     * variables held in Player.
      * @param results 
      */
-    public void saveResults(HashMap<String, Object> results);
+    public void saveResults(HashMap<String, Object> results){
+        for(String name: results.keySet()){
+            p.storeVariable(name, results.get(name));
+        }
+    }
 }
