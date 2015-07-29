@@ -4,8 +4,11 @@ import ec.util.MersenneTwisterFast;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import sim.app.evolutiongame.modules.Module;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.engine.Stoppable;
@@ -45,6 +48,8 @@ public class Player implements Steppable
      */
     private int strategy = -1;
     
+    private HashMap<String, Object> variables;
+    
     
     private double birthRate;
     private double birthRateModifier;
@@ -81,6 +86,7 @@ public class Player implements Steppable
         this.strategy = findStrategy();
         this.pop = pop;
         this.id = id_count++;
+        this.variables = new HashMap<>();
     }
     public Player(int[][] payoff, int strategy, Population pop)
     {
@@ -88,6 +94,7 @@ public class Player implements Steppable
         this.strategy = strategy;
         this.pop = pop;
         this.id = id_count++;
+        this.variables = new HashMap<>();
     }
     public Player(Player parent, Population pop)
     {
@@ -95,6 +102,7 @@ public class Player implements Steppable
         this.strategy = parent.strategy;
         this.pop = pop;
         this.id = id_count++;
+        this.variables = new HashMap<>();
     }
     
     /**
@@ -165,7 +173,7 @@ public class Player implements Steppable
      */
     private void playGameAgainst(ArrayList<Player> opponents){
         
-        if(opponents.size() == 0)
+        if(opponents.isEmpty())
             return;
         
         //default behaviour will be to pick a random opponent and play them
@@ -232,24 +240,23 @@ public class Player implements Steppable
      * @return 
      */
     public Object getVariable(String name) {
-        name = id + "_" + name;
-        
-        return this.pop.getPlayerVariable(name);
+        return this.variables.get(name);
     }
     
     public void storeVariable(String name, Object value) {
-        name = id + "_" + name;
-        
-        this.pop.storePlayerVariable(name, value);
+        this.variables.put(name, value);
+    }
+    
+    public boolean hasVariable(String name) {
+        return this.variables.containsKey(name);
     }
     
     /**
      * Invokes a method given by the user and catches any errors.
      * @param m
-     * @param args
      * @return 
      */
-    public Object invokeMethod(Method m, Object args) {
+    public Object invokeMethod(Method m) {
         try {
             return m.invoke(null, pop, this, null);
         } catch (IllegalAccessException ex) {
@@ -273,6 +280,29 @@ public class Player implements Steppable
         Method currentMethod;
         Object result = null;
         Object arguments = null;
+        
+        //Iterate over each module, in the order that is specified. Run each
+        //module only after checking that the proper variables all exist.
+        //Each module will take care by itself to fetch the arguments it needs
+        //and to set the results it should.
+        for(Map.Entry<String, Util.Pair<Module, Method>> entry: pop.playerModules.entrySet()){
+            boolean skipModule = false;
+            
+            //check for existence of all required variables
+            for(String name: pop.requiredVariables.get(entry.getValue().getFirst())){
+                if(!this.hasVariable(name)){
+                    skipModule = true;
+                    break;
+                }
+            }
+            if(skipModule)
+                continue;
+            
+            //run the module knowing that all of its variables exist
+            currentMethod = entry.getValue().getSecond();
+            this.invokeMethod(currentMethod);
+        }
+        
         //Check if there is a method for each module, if there is then do whatever
         //code is specific to that module
         //Ensure that all pre-conditions are met before attempting to run the
@@ -282,16 +312,16 @@ public class Player implements Steppable
         //try to find a list of people this agent is allowed to play against
         if(pop.playerModules.containsKey("PotentialPartnerDiscovery")){
             currentMethod = pop.playerModules.get("PotentialPartnerDiscovery").getSecond();
-            result = this.invokeMethod(currentMethod, arguments);
+            //result = this.invokeMethod(currentMethod, arguments);
             storeVariable("potential_partners", result);
         }
         
         //if there is a list of potential partners, try to find a specific one
         //to play against
-        if(pop.playerModules.containsKey("FindOpponent") && pop.playerVariables.containsKey("potential_partners")){
+        if(pop.playerModules.containsKey("FindOpponent") && this.hasVariable("potential_partners")){
             currentMethod = pop.playerModules.get("FindOpponent").getSecond();
             arguments = getVariable("potential_partners");
-            result = this.invokeMethod(currentMethod, arguments);
+            //result = this.invokeMethod(currentMethod, arguments);
             storeVariable("partners", result);
         }
         

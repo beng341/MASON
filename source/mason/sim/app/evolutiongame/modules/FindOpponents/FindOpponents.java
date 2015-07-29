@@ -29,15 +29,15 @@ public class FindOpponents extends Module {
         ArrayList<Player> players = (ArrayList<Player>)args.get("potential_opponents");
         
         //2 - do what the module actually does
-        Player result;
+        ArrayList<Player> result = new ArrayList<>();
         if(players.isEmpty())
             result = null;
         else
-            result = players.get(state.random.nextInt(players.size()));
+            result.add(players.get(state.random.nextInt(players.size())));
         
         //3 - save the results
         HashMap<String, Object> results = new HashMap<>();
-        results.put("opponent", result);
+        results.put("opponents", result);
         saveResults(results);
     }
 }

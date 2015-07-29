@@ -4,6 +4,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import sim.app.evolutiongame.modules.Module;
 import sim.engine.SimState;
@@ -41,12 +42,7 @@ public class Population extends SimState
      */
     public LinkedHashMap<String, Util.Pair<Module, Method>> playerModules;
     
-    /**
-     * A list of variables of each player. Key for player 17's last_played 
-     * time will be 17_last_played. The result should then be cast to a Double
-     * (or whatever type is appropriate).
-     */
-    public HashMap<String, Object> playerVariables;
+    public LinkedHashMap<Module, HashSet<String>> requiredVariables;
     
     /***************************************************************************
     * Variables for simulation parameters:
@@ -215,7 +211,6 @@ public class Population extends SimState
     public Population(long seed)
     {
         super(seed);
-        this.playerVariables = new HashMap<>();
     }
     public static void main(String[] args) {
         doLoop(Population.class, args);
@@ -233,23 +228,5 @@ public class Population extends SimState
     }
     public void removePlayer(Player p){
         players.remove(p);
-    }
-
-    /**
-     * Gets the specified variable from the list of all player variables.
-     * @param name Name of the variable, this should be something like 17_last_played.
-     * @return
-     */
-    Object getPlayerVariable(String name) {
-        return this.playerVariables.get(name);
-    }
-
-    /**
-     * Gets the specified variable from the list of all player variables.
-     * @param name Name of the variable, this should be something like 17_last_played.
-     * @return
-     */
-    void storePlayerVariable(String name, Object value) {
-        this.playerVariables.put(name, value);
     }
 }

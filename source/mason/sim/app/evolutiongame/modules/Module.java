@@ -19,7 +19,13 @@ import sim.app.evolutiongame.Population;
  */
 public abstract class Module {
     public Player p;
-    public String[] arguments;
+
+    /**
+     * The string array of arguments that the player must have if a module is to
+     * be run. A module that requires arguments should override this with the 
+     * names of the arguments required for that module.
+     */
+    public String[] arguments = {};
     /**
      * Finds all arguments used by this module and maps their name to their 
      * value. This module itself should be aware of which arguments it needs, if

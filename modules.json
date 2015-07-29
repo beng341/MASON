@@ -2,11 +2,9 @@
   "All Module Implementations": {
     "PlayGame": [
       "PlayGame",
-      "PlayGame2",
       "PlayGameMultiPlayer"
     ],
     "Reproduction": [
-      "ReproductionFillerTest",
       "Reproduction"
     ],
     "PotentialPartnerDiscovery": [
