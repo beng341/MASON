@@ -39,8 +39,17 @@ public class Population extends SimState
     
     /**
      * A list of methods that are run once in each step() method of each player.
+     * The name of the implementation of the module that is in use maps to the
+     * actual module class and to the run method of the class.
      */
     public LinkedHashMap<String, Util.Pair<Module, Method>> playerModules;
+    
+    /**
+     * A mapping of module names (e.g. PotentialPartnerDiscovery) to the module
+     * implementation in use (e.g. AllPlayers). Only modules in use will be 
+     * included in this mapping.
+     */
+    public LinkedTreeMap<String, String> modulesInUse;
     
     public LinkedHashMap<Module, HashSet<String>> requiredVariables;
     
@@ -182,6 +191,7 @@ public class Population extends SimState
         HashMap<String, Object> configElements = Config.readConfigFile(this);
         this.playerModules = Config.getMethods(
                 (LinkedTreeMap<String, String>)configElements.get("Modules In Use (Ordered)"));
+        this.modulesInUse = (LinkedTreeMap<String, String>)configElements.get("Modules In Use (Ordered)");
         PayoffMatrices.setGame(gameNumber);
         
         field.clear();

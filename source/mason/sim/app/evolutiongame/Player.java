@@ -270,6 +270,52 @@ public class Player implements Steppable
         return null;
     }
     
+    /**
+     * Used to run the in use implementation of a module.
+     * An example usage might be to run a module that will find the strategy a
+     * player should use and sets the strategy as the module's result.
+     * 
+     * This is useful for limited communication between players. A player can 
+     * tell another player to perform a specific action, and could theoretically
+     * give new values to the input variables of the module to be run.
+     * 
+     * @param moduleName The name of the module that the implementation to run 
+     * extends. ie. Pass "PotentialPartnerDiscovery" to run the "AllPlayers"
+     * implementation.
+     */
+    public void runModule(String moduleName){
+        
+        if(pop.modulesInUse.containsKey(moduleName)){
+            String implementationName = pop.modulesInUse.get(moduleName);
+            this.runModule(pop.playerModules.get(implementationName));
+        }
+        
+    }
+    
+    
+    /**
+     * Used to run a specific module and set the result as per normal. An example
+     * usage might be to run a module that will find the strategy a player should
+     * use and sets the strategy as the module's result.
+     * @param module
+     */
+    public void runModule(Util.Pair<Module, Method> module){
+        boolean runModule = true;
+            
+        //check for existence of all required variables
+        for(String name: pop.requiredVariables.get(module.getFirst())){
+            if(!this.hasVariable(name)){
+                runModule = false;
+                break;
+            }
+        }
+        
+        if(runModule) {
+            Method currentMethod = module.getSecond();
+            this.invokeMethod(currentMethod);
+        }
+    }
+    
     public void step(SimState state){
         
         pop = (Population)state;
@@ -286,21 +332,7 @@ public class Player implements Steppable
         //Each module will take care by itself to fetch the arguments it needs
         //and to set the results it should.
         for(Map.Entry<String, Util.Pair<Module, Method>> entry: pop.playerModules.entrySet()){
-            boolean skipModule = false;
-            
-            //check for existence of all required variables
-            for(String name: pop.requiredVariables.get(entry.getValue().getFirst())){
-                if(!this.hasVariable(name)){
-                    skipModule = true;
-                    break;
-                }
-            }
-            if(skipModule)
-                continue;
-            
-            //run the module knowing that all of its variables exist
-            currentMethod = entry.getValue().getSecond();
-            this.invokeMethod(currentMethod);
+            this.runModule(entry.getValue());
         }
         
         //Check if there is a method for each module, if there is then do whatever

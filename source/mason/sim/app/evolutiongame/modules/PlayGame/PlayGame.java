@@ -22,6 +22,26 @@ public class PlayGame extends Module {
         
         Player opponent = ((ArrayList<Player>)args.get("opponent")).get(0);
         
-        
+        //check if we or the selected opponent have played already this timestep
+        if(p.hasVariable("last_played") && 
+                ((Double)p.getVariable("last_played")) < state.schedule.getTime() && 
+                opponent.hasVariable("last_played") && 
+                ((Double)opponent.getVariable("last_played")) < state.schedule.getTime()){
+            //get payoff from this player against the opponent
+            
+            int[][] my_matrix = (int[][]) p.getVariable("payoff_matrix");
+            int[][] opp_matrix = (int[][]) opponent.getVariable("payoff_matrix");
+            
+            if(!opponent.hasVariable("strategy")){
+                opponent.runModule("FindStrategy");
+            }
+            
+        } else {
+            //already played, payoff should be set so do nothing
+        }
+    }
+    
+    private int getPayoff(int[][] myMatrix, int[][] oppMatrix) {
+        myMatrix[getStrategy()][opponent.strategy]
     }
 }
