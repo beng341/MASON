@@ -1,0 +1,28 @@
+Components of the system:
+
+-configuration file
+-setup before anything
+-event loop
+	-each player is called in turn and each module in use is called with that player passed to the module
+
+
+Configuration File:
+	-Contains information about what modules exist, what implementations exist for each module, what modules are in use, and what order the modules are run in.
+	-Will be expanded to include what variables each module should have passed in to it
+	-Could easily be expanded to support multiple types of agents 
+	-Editing this is currently done through a text file but in the fall if it is being used for other work a basic GUI can be developed
+
+MASON GUI configuration:
+	-configure global things like population size, number of agents of one type or another, game being played etc.
+	-I'm still investigating whether including module-specific parameters here is wise or if I should include them in the configuration file
+
+Event Loop:
+	Essentially:
+	while(true)
+	{
+		for each Player:
+			for each module:
+				run module
+	}
+	At each time step each player is called and given some time to execute code. At this point, the player runs each module it can, in the order specified in the configuration file. Before being run, each module checks that the variables specified for it in the configuration file exist. If they do not exist, the module is not run. If they do all exist, the module is run and is given as arguments: the Population containing all the Players, the Player running the module, each argument specified. The module may store variables within the Player running it, these variables can be used as arguments for future modules.
+	What does the module return?

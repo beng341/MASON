@@ -182,7 +182,7 @@ public class Population extends SimState
         super.start();
         
         //get list of methods that each player will run at every step
-        Config.generateConfigFile();
+        //Config.generateConfigFile();
         HashMap<String, Object> configElements = Config.readConfigFile(this);
         this.playerModules = Config.getMethods(
                 (LinkedTreeMap<String, String>)configElements.get("Modules In Use (Ordered)"));

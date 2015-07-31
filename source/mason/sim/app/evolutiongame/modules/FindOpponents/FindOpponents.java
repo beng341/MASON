@@ -11,6 +11,9 @@ import sim.app.evolutiongame.modules.Module;
  * @author Ben Armstrong
  */
 public class FindOpponents extends Module {
+    
+    public static final String[] args = {"potential_opponents"};
+    
     /**
      * Finds and saves an ArrayList<Player> containing a single player, randomly
      * chosen from the given list of potential opponents.

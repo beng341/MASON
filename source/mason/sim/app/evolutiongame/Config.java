@@ -10,12 +10,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,14 +44,23 @@ public class Config {
      */
     public static void generateConfigFile() {
         
-        LinkedHashMap<String, Object> modules = findModuleImplementations();
-        LinkedHashMap<String, String> defaults = getDefaultImplementations(modules);
-        HashSet<String> notInUse = getModulesNotInUse(modules, defaults.keySet());
+        LinkedHashMap<String, ArrayList<String>> moduleImplementations = findModuleImplementations();
+        LinkedHashMap<String, String> defaults = getDefaultImplementations(moduleImplementations);
+        HashSet<String> notInUse = getModulesNotInUse(moduleImplementations, defaults.keySet());
+        LinkedHashMap<String, String[]> arguments = getArguments(moduleImplementations);
+        
+        LinkedHashMap<String, LinkedHashMap<String, Object>> modules = new LinkedHashMap<>();
+        for(String moduleName: moduleImplementations.keySet()){
+            LinkedHashMap<String, Object> tmp = new LinkedHashMap<>();
+            tmp.put("Implementations", moduleImplementations.get(moduleName));
+            tmp.put("Arguments", arguments.get(moduleName));
+            modules.put(moduleName, tmp);
+        }
         
         //use a LinkedHashMap to preserve order (which keeps the output file in
         //a more readable format).
         LinkedHashMap<String, Object> output = new LinkedHashMap<>();
-        output.put("All Module Implementations", modules);
+        output.put("All Modules", modules);
         output.put("Modules In Use (Ordered)", defaults);
         output.put("Modules Not In Use", notInUse);
         
@@ -74,7 +83,7 @@ public class Config {
      * of that module.
      * @return 
      */
-    public static LinkedHashMap<String, Object> findModuleImplementations() {
+    public static LinkedHashMap<String, ArrayList<String>> findModuleImplementations() {
         FileFilter folderFilter = new FileFilter() {
             @Override
             public boolean accept(File pathname){
@@ -88,7 +97,7 @@ public class Config {
         
         File folder = new File(MODULE_PATH);
         
-        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+        LinkedHashMap<String, ArrayList<String>> map = new LinkedHashMap<>();
         ArrayList<String> implementations = null;
         String s = folder.getAbsolutePath();
         
@@ -115,7 +124,7 @@ public class Config {
      * @param modules
      * @return A map of module names to the default implementation of that module.
      */
-    private static LinkedHashMap<String, String> getDefaultImplementations(HashMap<String, Object> modules){
+    private static LinkedHashMap<String, String> getDefaultImplementations(HashMap<String, ArrayList<String>> modules){
         
         LinkedHashMap<String, String> defaults = new LinkedHashMap<>();
         
@@ -136,7 +145,7 @@ public class Config {
         return defaults;
     }
     
-    private static HashSet<String> getModulesNotInUse(HashMap<String, Object> modules, Set<String> inUse) {
+    private static HashSet<String> getModulesNotInUse(HashMap<String, ArrayList<String>> modules, Set<String> inUse) {
         HashSet<String> notInUse = new HashSet<>();
         
         for(String module: modules.keySet()) {
@@ -175,7 +184,6 @@ public class Config {
      * The classes that the methods are in should be specified in the
      * configuration file.
      * @param modules
-     * @param order List of Modules, in the order that they should be run.
      * @return 
      */
     public static LinkedHashMap<String, Pair<Module, Method>> getMethods(LinkedTreeMap<String, String> modules) {
@@ -193,7 +201,7 @@ public class Config {
             
             Method m;
             try {
-                m = c.getMethod("run", Population.class, Player.class, Object.class);
+                m = c.getMethod("run", Population.class, Player.class);
                 methods.put(module, new Pair<>((Module)c.newInstance(), m));
             } catch (NoSuchMethodException ex){
                 System.out.println("No run() method found in " + c.toString());
@@ -207,5 +215,46 @@ public class Config {
         }
         
         return methods;
+    }
+
+    /**
+     * Use reflection to retrieve the value of the "args" String array in each 
+     * module class. This relies on the default class for each module, the 
+     * module implementation with the same name as the module itself.
+     * @param modules
+     * @return 
+     */
+    private static LinkedHashMap<String, String[]> getArguments(LinkedHashMap<String, ArrayList<String>> modules)
+    {
+        LinkedHashMap<String, String[]> arguments = new LinkedHashMap<>();
+        
+        for(String module: modules.keySet()) {
+            Class c = null;
+            try {
+                c = Class.forName(MODULE_PACKAGE+"."+module+"."+module);
+                Field field = c.getDeclaredField("args");
+                String[] args = (String[])field.get(null); //can be null since args should be static
+                arguments.put(module, args);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (NoSuchFieldException ex)
+            {
+                Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SecurityException ex)
+            {
+                Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalArgumentException ex)
+            {
+                Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex)
+            {
+                Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (Exception ex)
+            {
+                Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        return arguments;
     }
 }

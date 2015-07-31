@@ -10,7 +10,7 @@ import sim.app.evolutiongame.Player;
 import sim.app.evolutiongame.Population;
 
 /**
- * This interface is not strictly necessary, its main goal is to suggest to 
+ * This class is not strictly necessary, its main goal is to suggest to 
  * other programmers the way in which this system is meant to be used. Modules
  * should implement this interface and the accompanying functionality so that
  * their new code is structured in at least a similar manner to the original
@@ -19,7 +19,7 @@ import sim.app.evolutiongame.Population;
  */
 public abstract class Module {
     public Player p;
-    public String[] arguments;
+    public String[] arguments = {};
     /**
      * Finds all arguments used by this module and maps their name to their 
      * value. This module itself should be aware of which arguments it needs, if

@@ -1,29 +1,54 @@
 {
-  "All Module Implementations": {
-    "PlayGame": [
-      "PlayGame",
-      "PlayGame2",
-      "PlayGameMultiPlayer"
-    ],
-    "Reproduction": [
-      "ReproductionFillerTest",
-      "Reproduction"
-    ],
-    "PotentialPartnerDiscovery": [
-      "AllPlayers"
-    ],
-    "FindOpponents": [
-      "FindOpponents"
-    ],
-    "Movement": [
-      "Movement"
-    ]
+  "All Modules": {
+    "FindOpponents": {
+      "Implementations": [
+        "FindOpponents"
+      ],
+      "Arguments": [
+        "potential_opponents"
+      ]
+    },
+    "PlayGame": {
+      "Implementations": [
+        "PlayGameMultiPlayer",
+        "PlayGame",
+        "PlayGame2"
+      ],
+      "Arguments": [
+        "potential_opponents"
+      ]
+    },
+    "Movement": {
+      "Implementations": [
+        "Movement"
+      ],
+      "Arguments": []
+    },
+    "PotentialPartnerDiscovery": {
+      "Implementations": [
+        "AllPlayers",
+        "PotentialPartnerDiscovery"
+      ],
+      "Arguments": [
+        "test",
+        "more_test"
+      ]
+    },
+    "Reproduction": {
+      "Implementations": [
+        "Reproduction",
+        "ReproductionFillerTest"
+      ],
+      "Arguments": [
+        "payoff"
+      ]
+    }
   },
   "Modules In Use (Ordered)": {
+    "PotentialPartnerDiscovery": "PotentialPartnerDiscovery",
+    "FindOpponents": "FindOpponents",
     "PlayGame": "PlayGame",
     "Reproduction": "Reproduction",
-    "PotentialPartnerDiscovery": "AllPlayers",
-    "FindOpponents": "FindOpponents",
     "Movement": "Movement"
   },
   "Modules Not In Use": []

@@ -1,6 +1,5 @@
 package sim.app.evolutiongame;
 
-import ec.util.MersenneTwisterFast;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -20,7 +19,7 @@ import sim.engine.Stoppable;
  */
 public class Player implements Steppable
 {
-    private int[][] payoffMatrix;
+    private final int[][] payoffMatrix;
     
     /**
      * Contains the most recent payoff earned by this player. This is always
@@ -263,6 +262,7 @@ public class Player implements Steppable
         return null;
     }
     
+    @Override
     public void step(SimState state){
         
         pop = (Population)state;
