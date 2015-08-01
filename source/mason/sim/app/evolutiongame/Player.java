@@ -50,9 +50,9 @@ public class Player implements Steppable
     private HashMap<String, Object> variables;
     
     
-    private double birthRate;
-    private double birthRateModifier;
-    private double deathRate;
+    public double birthRate;
+    public double birthRateModifier;
+    public double deathRate;
     
     /**
      * This is what is returned when the agent is put on the schedule.
@@ -86,6 +86,7 @@ public class Player implements Steppable
         this.pop = pop;
         this.id = id_count++;
         this.variables = new HashMap<>();
+        initializeConstantVariables();
     }
     public Player(int[][] payoff, int strategy, Population pop)
     {
@@ -94,6 +95,7 @@ public class Player implements Steppable
         this.pop = pop;
         this.id = id_count++;
         this.variables = new HashMap<>();
+        initializeConstantVariables();
     }
     public Player(Player parent, Population pop)
     {
@@ -102,6 +104,18 @@ public class Player implements Steppable
         this.pop = pop;
         this.id = id_count++;
         this.variables = new HashMap<>();
+        initializeConstantVariables();
+    }
+
+    /**
+     * Store variables that either should never change throughout the life of 
+     * this player, or that should always exist and be available regardless of if
+     * they change or not.
+     */
+    private void initializeConstantVariables()
+    {
+        this.storeVariable("payoff_matrix", this.payoffMatrix);
+        this.storeVariable("last_played", pop.schedule.getTime()-1);
     }
     
     /**
@@ -255,9 +269,9 @@ public class Player implements Steppable
      * @param m
      * @return 
      */
-    public Object invokeMethod(Method m) {
+    public Object invokeMethod(Method m, Module module) {
         try {
-            return m.invoke(null, pop, this, null);
+            return m.invoke(module, pop, this);
         } catch (IllegalAccessException ex) {
             Logger.getLogger(Player.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IllegalArgumentException ex) {
@@ -278,17 +292,20 @@ public class Player implements Steppable
      * tell another player to perform a specific action, and could theoretically
      * give new values to the input variables of the module to be run.
      * 
+     * Note that all modules
+     * 
      * @param moduleName The name of the module that the implementation to run 
      * extends. ie. Pass "PotentialPartnerDiscovery" to run the "AllPlayers"
      * implementation.
+     * @return true if the module is run, false otherwise
      */
-    public void runModule(String moduleName){
+    public boolean runModuleOutOfTurn(String moduleName){
         
-        if(pop.modulesInUse.containsKey(moduleName)){
-            String implementationName = pop.modulesInUse.get(moduleName);
-            this.runModule(pop.playerModules.get(implementationName));
+        if(pop.preferredModules.containsKey(moduleName)){
+            this.invokeMethod(pop.preferredModules.get(moduleName).getSecond(), pop.preferredModules.get(moduleName).getFirst());
+            return true;
         }
-        
+        return false;
     }
     
     
@@ -297,8 +314,9 @@ public class Player implements Steppable
      * usage might be to run a module that will find the strategy a player should
      * use and sets the strategy as the module's result.
      * @param module
+     * @return true if all variables are found and module is run, false otherwise
      */
-    public void runModule(Util.Pair<Module, Method> module){
+    public boolean runModule(Util.Pair<Module, Method> module){
         boolean runModule = true;
             
         //check for existence of all required variables
@@ -311,8 +329,9 @@ public class Player implements Steppable
         
         if(runModule) {
             Method currentMethod = module.getSecond();
-            this.invokeMethod(currentMethod);
+            this.invokeMethod(currentMethod, module.getFirst());
         }
+        return runModule;
     }
     
     public void step(SimState state){
@@ -322,10 +341,6 @@ public class Player implements Steppable
         this.birthRateModifier = pop.birthRateModifier;
         this.deathRate = pop.deathRate;
         
-        Method currentMethod;
-        Object result = null;
-        Object arguments = null;
-        
         //Iterate over each module, in the order that is specified. Run each
         //module only after checking that the proper variables all exist.
         //Each module will take care by itself to fetch the arguments it needs
@@ -334,49 +349,27 @@ public class Player implements Steppable
             this.runModule(entry.getValue());
         }
         
-        //Check if there is a method for each module, if there is then do whatever
-        //code is specific to that module
-        //Ensure that all pre-conditions are met before attempting to run the
-        //method. This means ensuring the method exists, all necessary variables
-        //exist and possibly other conditions
         
-        //try to find a list of people this agent is allowed to play against
-        if(pop.playerModules.containsKey("PotentialPartnerDiscovery")){
-            currentMethod = pop.playerModules.get("PotentialPartnerDiscovery").getSecond();
-            //result = this.invokeMethod(currentMethod, arguments);
-            storeVariable("potential_partners", result);
-        }
-        
-        //if there is a list of potential partners, try to find a specific one
-        //to play against
-        if(pop.playerModules.containsKey("FindOpponent") && this.hasVariable("potential_partners")){
-            currentMethod = pop.playerModules.get("FindOpponent").getSecond();
-            arguments = getVariable("potential_partners");
-            //result = this.invokeMethod(currentMethod, arguments);
-            storeVariable("partners", result);
-        }
-        
-        
-        //find potential opponents (currently does not take into account the last
-        //played time)
-        ArrayList<Player> potentialOpponents = null;
-        
-        if(result != null) {
-            potentialOpponents = (ArrayList<Player>)result;
-        }
-        
-        //if not played yet this round, play now
-        //doing this will update lastPlayed, as well as set the payoff value
-        if(lastPlayed < pop.schedule.getTime())
-            playGameAgainst(potentialOpponents);
-        
-        //maybe do something with the payoff gained
-            //modify energy levels, change strategy, etc.
-        usePayoff(payoff);
-        
-        tryToReproduce(payoff);
-        
-        tryToDie();
+//        //find potential opponents (currently does not take into account the last
+//        //played time)
+//        ArrayList<Player> potentialOpponents = null;
+//        
+//        if(result != null) {
+//            potentialOpponents = (ArrayList<Player>)result;
+//        }
+//        
+//        //if not played yet this round, play now
+//        //doing this will update lastPlayed, as well as set the payoff value
+//        if(lastPlayed < pop.schedule.getTime())
+//            playGameAgainst(potentialOpponents);
+//        
+//        //maybe do something with the payoff gained
+//            //modify energy levels, change strategy, etc.
+//        usePayoff(payoff);
+//        
+//        tryToReproduce(payoff);
+//        
+//        tryToDie();
         
     }
     
@@ -384,6 +377,6 @@ public class Player implements Steppable
     
     public String toString()
     {
-        return "Strategy " + this.strategy;
+        return "Player " + this.id;
     }
 }

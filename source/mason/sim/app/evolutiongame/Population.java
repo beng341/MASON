@@ -4,8 +4,8 @@ import com.google.gson.internal.LinkedTreeMap;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import sim.app.evolutiongame.modules.Module;
 import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
@@ -51,7 +51,14 @@ public class Population extends SimState
      */
     public LinkedTreeMap<String, String> modulesInUse;
     
-    public LinkedHashMap<Module, HashSet<String>> requiredVariables;
+    public LinkedHashMap<Module, String[]> requiredVariables;
+    
+    /**
+     * List of module implementations to run in the runModuleOutOfTurn method.
+     * An example entry would be:
+     *      "FindStrategy" -> (RandomStrategy.class, run())
+     */
+    public LinkedHashMap<String, Util.Pair<Module, Method>> preferredModules;
     
     /***************************************************************************
     * Variables for simulation parameters:
@@ -190,8 +197,18 @@ public class Population extends SimState
         //Config.generateConfigFile();
         HashMap<String, Object> configElements = Config.readConfigFile(this);
         this.playerModules = Config.getMethods(
-                (LinkedTreeMap<String, String>)configElements.get("Modules In Use (Ordered)"));
-        this.modulesInUse = (LinkedTreeMap<String, String>)configElements.get("Modules In Use (Ordered)");
+                (LinkedTreeMap<String, String>)configElements.get(Config.MODULES_TO_RUN));
+        this.modulesInUse = (LinkedTreeMap<String, String>)configElements.get(Config.MODULES_TO_RUN);
+        this.preferredModules = Config.getMethods((LinkedTreeMap<String, String>)configElements.get(Config.PREFERRED_IMPLEMENTATIONS));
+        
+        LinkedHashMap<String, String[]> args = Config.getArguments((
+                (LinkedTreeMap<String, String>)configElements.get(Config.MODULES_TO_RUN)).keySet());
+        
+        this.requiredVariables = new LinkedHashMap<>();
+        for(Map.Entry<String, Util.Pair<Module, Method>> entry: this.playerModules.entrySet()){
+            this.requiredVariables.put(entry.getValue().getFirst(), args.get(entry.getKey()));
+        }
+        
         PayoffMatrices.setGame(gameNumber);
         
         field.clear();
@@ -208,15 +225,13 @@ public class Population extends SimState
             matrix = PayoffMatrices.getPayoffMatrix(random.nextBoolean());
             strategy = random.nextInt(matrix.length);
             p = new Player(matrix, strategy, this);
+            
             players.add(p);
             p.setStoppable(schedule.scheduleRepeating(p));
-            
             field.setObjectLocation(p, 
                     new Double2D(field.getWidth()*0.5 + random.nextDouble()-0.5,
                             field.getHeight()*0.5 + random.nextDouble()-0.5));
         }
-        
-        
     }
     public Population(long seed)
     {
@@ -232,11 +247,16 @@ public class Population extends SimState
      * ad infinitum.
      * @param p 
      */
-    public void addPlayer(Player p){
+    public Player addPlayer(Player p){
         players.add(p);
         p.setStoppable(schedule.scheduleRepeating(p));
+        return p;
     }
     public void removePlayer(Player p){
         players.remove(p);
+    }
+    
+    public String toString() {
+        return "Population of " + this.players.size() + " Players.";
     }
 }

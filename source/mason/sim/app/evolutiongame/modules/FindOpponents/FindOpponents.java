@@ -12,6 +12,11 @@ import sim.app.evolutiongame.modules.Module;
  */
 public class FindOpponents extends Module {
     
+    /**
+     * A list of arguments required for this module to be run. If the player 
+     * wishing to run this module does not have variables with these names, the
+     * module will not be run.
+     */
     public static final String[] args = {"potential_opponents"};
     
     /**
@@ -23,13 +28,12 @@ public class FindOpponents extends Module {
     @Override
     public void run(Population state, Player p) {
         this.p = p;
-        this.arguments = new String[]{"potential_opponents"};
         //1 - get arguments
-        HashMap<String, Object> args = getArguments();
-        if(null == args) {
+        HashMap<String, Object> arguments = getArguments(args);
+        if(null == arguments) {
             return;
         }
-        ArrayList<Player> players = (ArrayList<Player>)args.get("potential_opponents");
+        ArrayList<Player> players = (ArrayList<Player>)arguments.get("potential_opponents");
         
         //2 - do what the module actually does
         ArrayList<Player> result = new ArrayList<>();

@@ -12,12 +12,13 @@ import sim.app.evolutiongame.modules.Module;
  * someone that has already played this time step.
  * @author Ben Armstrong
  */
-public class AllPlayers extends Module {
+public class AllPlayers extends PotentialPartnerDiscovery {
 
     @Override
     public void run(Population state, Player p) {
+        this.p = p;
         HashMap<String, Object> results = new HashMap<>();
-        results.put("potential_partners", state.getPlayers());
+        results.put("potential_opponents", state.getPlayers());
         saveResults(results);
     }
 }

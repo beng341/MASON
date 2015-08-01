@@ -1,0 +1,70 @@
+{
+  "All Modules": {
+    "FindOpponents": {
+      "Implementations": [
+        "FindOpponents"
+      ],
+      "Arguments": [
+        "potential_opponents"
+      ]
+    },
+    "FindStrategy": {
+      "Implementations": [
+        "RandomStrategy",
+        "FindStrategy"
+      ],
+      "Arguments": [
+        "opponents",
+        "payoff_matrix"
+      ]
+    },
+    "PlayGame": {
+      "Implementations": [
+        "PlayGameMultiPlayer",
+        "PlayGame"
+      ],
+      "Arguments": [
+        "opponents",
+        "payoff_matrix"
+      ]
+    },
+    "Movement": {
+      "Implementations": [
+        "Movement"
+      ],
+      "Arguments": [
+        "dunno",
+        "maybe_a_cell_to_move_to"
+      ]
+    },
+    "PotentialPartnerDiscovery": {
+      "Implementations": [
+        "AllPlayers",
+        "PotentialPartnerDiscovery"
+      ],
+      "Arguments": []
+    },
+    "Reproduction": {
+      "Implementations": [
+        "Reproduction"
+      ],
+      "Arguments": [
+        "payoff"
+      ]
+    }
+  },
+  "Modules To Run (Ordered)": {
+    "PotentialPartnerDiscovery": "AllPlayers",
+    "FindOpponents": "FindOpponents",
+    "PlayGame": "PlayGame",
+    "Reproduction": "Reproduction"
+  },
+  "Preferred Implementations": {
+    "FindOpponents": "FindOpponents",
+    "FindStrategy": "RandomStrategy",
+    "PlayGame": "PlayGame",
+    "Movement": "Movement",
+    "PotentialPartnerDiscovery": "AllPlayers",
+    "Reproduction": "Reproduction"
+  }
+}

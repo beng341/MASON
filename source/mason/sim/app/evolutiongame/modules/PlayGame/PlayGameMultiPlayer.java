@@ -8,11 +8,10 @@ import sim.app.evolutiongame.modules.Module;
  *
  * @author Ben Armstrong
  */
-public class PlayGameMultiPlayer extends Module {
+public class PlayGameMultiPlayer extends PlayGame {
 
     @Override
     public void run(Population state, Player p) {
         this.p = p;
-        this.arguments = new String[]{};
     }
 }

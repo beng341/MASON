@@ -19,13 +19,7 @@ import sim.app.evolutiongame.Population;
  */
 public abstract class Module {
     public Player p;
-
-    /**
-     * The string array of arguments that the player must have if a module is to
-     * be run. A module that requires arguments should override this with the 
-     * names of the arguments required for that module.
-     */
-    public String[] arguments = {};
+    
     /**
      * Finds all arguments used by this module and maps their name to their 
      * value. This module itself should be aware of which arguments it needs, if
@@ -34,12 +28,12 @@ public abstract class Module {
      * @return The arguments this module will use, or null if not all of the
      * arguments exist.
      */
-    public HashMap<String, Object> getArguments(){
-        HashMap<String, Object> arguments = new HashMap<>();
-        for(String arg: this.arguments) {
-            arguments.put(arg, p.getVariable(arg));
+    public HashMap<String, Object> getArguments(String[] arguments){
+        HashMap<String, Object> args = new HashMap<>();
+        for(String arg: arguments) {
+            args.put(arg, p.getVariable(arg));
         }
-        return arguments;
+        return args;
     }
     /**
      * Perform the actual action that the module is meant to do. Should call
