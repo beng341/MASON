@@ -18,7 +18,7 @@ public class PlayGame extends Module {
     
     public static final String[] args = {"potential_opponents"};
 
-    public static Object run(Population state, Player p, Object args) {
+    public void run(Population state, Player p) {
         
         HashMap<String, Object> args = getArguments();
         
@@ -45,17 +45,5 @@ public class PlayGame extends Module {
     
     private int getPayoff(int[][] myMatrix, int[][] oppMatrix) {
         myMatrix[getStrategy()][opponent.strategy]
-    }
-
-    @Override
-    public void run(Population state, Player p)
-    {
-        this.p = p;
-        this.arguments = new String[]{"potential_opponents"};
-        //1 - get arguments
-        HashMap<String, Object> args = getArguments();
-        if(null == args) {
-            return;
-        }
     }
 }
