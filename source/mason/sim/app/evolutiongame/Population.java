@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.PriorityQueue;
 import sim.app.evolutiongame.modules.Module;
 import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
@@ -23,14 +24,6 @@ public class Population extends SimState
      * Variables that are not directly related to simulation parameters:
      **************************************************************************/
     private ArrayList<Player> players;
-    /**
-     * A list of players that have not yet played this round.
-     */
-    private ArrayList<Player> unplayedPlayers;
-    /**
-     * A list of players that have already played during this round.
-     */
-    private ArrayList<Player> playedPlayers;
     
     /**
      * Used to graphically represent the players. Currently has 250000 cells.
@@ -45,12 +38,9 @@ public class Population extends SimState
     public LinkedHashMap<String, Util.Pair<Module, Method>> playerModules;
     
     /**
-     * A mapping of module names (e.g. PotentialPartnerDiscovery) to the module
-     * implementation in use (e.g. AllPlayers). Only modules in use will be 
-     * included in this mapping.
+     * A list of names of variables that a player must have before running the
+     * module.
      */
-    public LinkedTreeMap<String, String> modulesInUse;
-    
     public LinkedHashMap<Module, String[]> requiredVariables;
     
     /**
@@ -76,7 +66,7 @@ public class Population extends SimState
      * Chance that an agent will die after playing a game. Death occurs after
      * reproduction.
      */
-    double deathRate = 0.5;
+    double deathRate = 0.50;
     
     /**
      * True if data should be printed to the console at each step.
@@ -194,15 +184,10 @@ public class Population extends SimState
         super.start();
         
         //get list of methods that each player will run at every step
-        //Config.generateConfigFile();
-        HashMap<String, Object> configElements = Config.readConfigFile(this);
-        this.playerModules = Config.getMethods(
-                (LinkedTreeMap<String, String>)configElements.get(Config.MODULES_TO_RUN));
-        this.modulesInUse = (LinkedTreeMap<String, String>)configElements.get(Config.MODULES_TO_RUN);
-        this.preferredModules = Config.getMethods((LinkedTreeMap<String, String>)configElements.get(Config.PREFERRED_IMPLEMENTATIONS));
+        this.playerModules = Config.modulesToRun;
+        this.preferredModules = Config.preferredModules;
         
-        LinkedHashMap<String, String[]> args = Config.getArguments((
-                (LinkedTreeMap<String, String>)configElements.get(Config.MODULES_TO_RUN)).keySet());
+        LinkedHashMap<String, String[]> args = Config.arguments;
         
         this.requiredVariables = new LinkedHashMap<>();
         for(Map.Entry<String, Util.Pair<Module, Method>> entry: this.playerModules.entrySet()){

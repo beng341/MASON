@@ -18,6 +18,14 @@
         "payoff_matrix"
       ]
     },
+    "Death": {
+      "Implementations": [
+        "Death"
+      ],
+      "Arguments": [
+        "payoff"
+      ]
+    },
     "PlayGame": {
       "Implementations": [
         "PlayGameMultiPlayer",
@@ -57,11 +65,13 @@
     "PotentialPartnerDiscovery": "AllPlayers",
     "FindOpponents": "FindOpponents",
     "PlayGame": "PlayGame",
-    "Reproduction": "Reproduction"
+    "Reproduction": "Reproduction",
+    "Death": "Death"
   },
   "Preferred Implementations": {
     "FindOpponents": "FindOpponents",
     "FindStrategy": "RandomStrategy",
+    "Death": "Death",
     "PlayGame": "PlayGame",
     "Movement": "Movement",
     "PotentialPartnerDiscovery": "AllPlayers",

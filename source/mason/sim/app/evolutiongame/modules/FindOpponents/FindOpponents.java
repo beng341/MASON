@@ -27,6 +27,7 @@ public class FindOpponents extends Module {
      */
     @Override
     public void run(Population state, Player p) {
+        
         this.p = p;
         //1 - get arguments
         HashMap<String, Object> arguments = getArguments(args);

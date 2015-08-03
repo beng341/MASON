@@ -52,4 +52,11 @@ public abstract class Module {
             p.storeVariable(name, results.get(name));
         }
     }
+    /**
+     * A module can implement this if it wishes to somehow track statistics data
+     * about what it has done.
+     * To be explained further.
+     * @param args
+     */
+    public Object trackStatistics(){ return null; }
 }

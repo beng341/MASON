@@ -2,6 +2,7 @@ package sim.app.evolutiongame.modules.PlayGame;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import sim.app.evolutiongame.Player;
 import sim.app.evolutiongame.Population;
 import sim.app.evolutiongame.modules.Module;
@@ -18,6 +19,8 @@ import static sim.app.evolutiongame.modules.Reproduction.Reproduction.args;
 public class PlayGame extends Module {
     
     public static final String[] args = {"opponents", "payoff_matrix"};
+    
+    private final ArrayList<Integer> payoffs = new ArrayList<>();
 
     @Override
     public void run(Population state, Player p) {
@@ -30,6 +33,14 @@ public class PlayGame extends Module {
         
         Player opponent = ((ArrayList<Player>)arguments.get("opponents")).get(0);
         
+        //Set strategy for each player
+        if(!opponent.hasVariable("strategy")){
+            opponent.runModuleOutOfTurn("FindStrategy");
+        }
+        if(!p.hasVariable("strategy")){
+            p.runModuleOutOfTurn("FindStrategy");
+        }
+        
         //check if we or the selected opponent have played already this timestep
         if(((Double)p.getVariable("last_played")) < state.schedule.getTime() && 
                 ((Double)opponent.getVariable("last_played")) < state.schedule.getTime()){
@@ -38,18 +49,9 @@ public class PlayGame extends Module {
             int[][] my_matrix = (int[][]) arguments.get("payoff_matrix");
             int[][] opp_matrix = (int[][]) opponent.getVariable("payoff_matrix");
             
-            //Initialize strategies to random strategy, then try to find strategies
-            //using the FindStrategy module
-            int my_strategy = state.random.nextInt(my_matrix.length);
-            int opp_strategy = state.random.nextInt(my_matrix[0].length);
-            if(!opponent.hasVariable("strategy")){
-                opponent.runModuleOutOfTurn("FindStrategy");
-            }
-            opp_strategy = (int) opponent.getVariable("strategy");
-            if(!p.hasVariable("strategy")){
-                p.runModuleOutOfTurn("FindStrategy");
-            }
-            my_strategy = (int) opponent.getVariable("strategy");
+            //Find each players strategy
+            int my_strategy = (int) p.getVariable("strategy");
+            int opp_strategy = (int) opponent.getVariable("strategy");
             
             //find and store each players payoff
             int my_payoff = my_matrix[my_strategy][opp_strategy];
@@ -62,11 +64,24 @@ public class PlayGame extends Module {
             opponent.storeVariable("last_played", state.schedule.getTime());
         } else {
             //already played, or the first round.
-            //If payoff does not exist yet, set it to be zero.
+            //If payoff does not exist yet, set it to be zero. This should only
+            //happen on the first round.
             if(!p.hasVariable("payoff"))
                 p.storeVariable("payoff", 0);
             if(!opponent.hasVariable("payoff"))
                 opponent.storeVariable("payoff", 0);
         }
+        
+        payoffs.add((int) p.getVariable("payoff"));
+    }
+    
+    @Override
+    public Object trackStatistics(){
+        double avgPayoff = 0;
+        for(int payoff: payoffs)
+            avgPayoff += payoff;
+        avgPayoff = avgPayoff / payoffs.size();
+        payoffs.clear();
+        return "Average Payoff: " + avgPayoff;
     }
 }

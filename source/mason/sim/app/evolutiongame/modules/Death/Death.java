@@ -1,4 +1,4 @@
-package sim.app.evolutiongame.modules.Reproduction;
+package sim.app.evolutiongame.modules.Death;
 
 import java.util.HashMap;
 import sim.app.evolutiongame.Player;
@@ -6,12 +6,13 @@ import sim.app.evolutiongame.Population;
 import sim.app.evolutiongame.modules.Module;
 
 /**
- *
+ * Basic method of handling death. Each player has a given deathrate, if the 
+ * random value is less than that rate the player dies.
  * @author Ben Armstrong
  */
-public class Reproduction extends Module {
+public class Death extends Module{
     
-    private int numberOfBirths = 0;
+    private int numberOfDeaths = 0;
     
     /**
      * A list of arguments required for this module to be run. If the player 
@@ -23,24 +24,16 @@ public class Reproduction extends Module {
     @Override
     public void run(Population state, Player p)
     {
-        this.p = p;
-        //1 - get arguments
-        HashMap<String, Object> arguments = getArguments(args);
-        if(null == arguments) {
-            return;
-        }
-        int payoff = (int) arguments.get("payoff"); 
-        
-        if(state.random.nextDouble() <= (p.birthRate+p.birthRateModifier*payoff)){
-            state.addPlayer(new Player(p, state));
-            numberOfBirths++;
+        if(state.random.nextDouble() <= (p.deathRate)){
+            p.die();
+            numberOfDeaths++;
         }
     }
     
     @Override
     public Object trackStatistics(){
-        String result = "Number of Births: " + numberOfBirths;
-        numberOfBirths = 0;
+        String result = "Number of Deaths: " + numberOfDeaths;
+        numberOfDeaths = 0;
         return result;
     }
 }
