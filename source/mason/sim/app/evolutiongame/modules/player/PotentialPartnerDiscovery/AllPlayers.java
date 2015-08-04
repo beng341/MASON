@@ -1,9 +1,9 @@
-package sim.app.evolutiongame.modules.PotentialPartnerDiscovery;
+package sim.app.evolutiongame.modules.player.PotentialPartnerDiscovery;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import sim.app.evolutiongame.Player;
+import sim.app.evolutiongame.agents.Player;
 import sim.app.evolutiongame.Population;
-import sim.app.evolutiongame.modules.Module;
 
 /**
  * A basic method of creating a list of potential partners to play with. Simply
@@ -13,7 +13,7 @@ import sim.app.evolutiongame.modules.Module;
  * @author Ben Armstrong
  */
 public class AllPlayers extends PotentialPartnerDiscovery {
-
+    
     @Override
     public void run(Population state, Player p) {
         this.p = p;

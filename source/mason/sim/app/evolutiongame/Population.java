@@ -1,12 +1,17 @@
 package sim.app.evolutiongame;
 
+import sim.app.evolutiongame.agents.Player;
+import sim.app.evolutiongame.agents.Observer;
 import com.google.gson.internal.LinkedTreeMap;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
+import sim.app.evolutiongame.agents.Environment;
+import sim.app.evolutiongame.agents.Janitor;
 import sim.app.evolutiongame.modules.Module;
 import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
@@ -23,7 +28,9 @@ public class Population extends SimState
     /***************************************************************************
      * Variables that are not directly related to simulation parameters:
      **************************************************************************/
+    private HashMap<Integer, Player> playerMap;
     private ArrayList<Player> players;
+    private Environment env;
     
     /**
      * Used to graphically represent the players. Currently has 250000 cells.
@@ -36,12 +43,14 @@ public class Population extends SimState
      * actual module class and to the run method of the class.
      */
     public LinkedHashMap<String, Util.Pair<Module, Method>> playerModules;
+    public LinkedHashMap<String, Util.Pair<Module, Method>> environmentModules;
     
     /**
      * A list of names of variables that a player must have before running the
      * module.
      */
-    public LinkedHashMap<Module, String[]> requiredVariables;
+    public LinkedHashMap<Module, String[]> requiredPlayerVariables;
+    public LinkedHashMap<Module, String[]> requiredEnvironmentVariables;
     
     /**
      * List of module implementations to run in the runModuleOutOfTurn method.
@@ -56,7 +65,7 @@ public class Population extends SimState
     /**
      * The base percentage of an agent reproducing after playing a game.
      */
-    double birthRate = 0.4;
+    double birthRate = 0.40;
     /**
      * Modifies the birth rate based off of payoff the agent received after the game.
      * Chance of reproduction = birthRate + payOff * birthRateModifier.
@@ -73,7 +82,9 @@ public class Population extends SimState
      */
     boolean printData = true;
     
-    long numPlayers = 10000;//should probably have at least 1000 for anything useful
+    long numPlayers = 100;//should probably have at least 1000 for anything useful
+    private long gridHeight = 15;
+    private long gridWidth = 15;
     
     int strategyDistribution = RANDOMCHOICES;
     /** Choose this to have agents that randomly choose a strategy */
@@ -81,7 +92,7 @@ public class Population extends SimState
     /** Choose this to have agents that are assigned a random strategy that will not change */
     public static int RANDOMAGENTS = 1;
     
-    int gameNumber = RockPaperScissors;
+    int gameNumber = ModifiedRockPaperScissors;
     /** Game numbers that correspond to payoff matrices found in PayoffMatrices */
     public static int RockPaperScissors = 0;
     public static int ModifiedRockPaperScissors = 1;
@@ -104,6 +115,27 @@ public class Population extends SimState
         this.numPlayers = num;
     }
     public Object domNumPlayers(){
+        return new sim.util.Interval(0, 500);
+    }
+    /*
+    * Methods to set grid height and width.
+    */
+    public long getGridWidth(){
+        return this.gridWidth;
+    }
+    public void setGridWidth(long num){
+        this.gridWidth = num;
+    }
+    public Object domGridWidth(){
+        return new sim.util.Interval(0, 500);
+    }
+    public long getGridHeight(){
+        return this.gridHeight;
+    }
+    public void setGridHeight(long num){
+        this.gridHeight = num;
+    }
+    public Object domGridHeight(){
         return new sim.util.Interval(0, 100000);
     }
     /*
@@ -172,9 +204,11 @@ public class Population extends SimState
     {
         return this.players;
     }
-    public void setPlayers(ArrayList<Player> players)
-    {
-        this.players = players;
+    public Player getPlayer(int id){
+        return this.playerMap.get(id);
+    }
+    public HashMap<Integer, Player> getPlayerMap(){
+        return this.playerMap;
     }
     
     
@@ -184,14 +218,21 @@ public class Population extends SimState
         super.start();
         
         //get list of methods that each player will run at every step
-        this.playerModules = Config.modulesToRun;
+        this.playerModules = Config.playerModulesToRun;
+        this.environmentModules = Config.environmentModulesToRun;
         this.preferredModules = Config.preferredModules;
         
-        LinkedHashMap<String, String[]> args = Config.arguments;
+        LinkedHashMap<String, String[]> args = Config.playerArguments;
         
-        this.requiredVariables = new LinkedHashMap<>();
+        this.requiredPlayerVariables = new LinkedHashMap<>();
         for(Map.Entry<String, Util.Pair<Module, Method>> entry: this.playerModules.entrySet()){
-            this.requiredVariables.put(entry.getValue().getFirst(), args.get(entry.getKey()));
+            this.requiredPlayerVariables.put(entry.getValue().getFirst(), args.get(entry.getKey()));
+        }
+        
+        args = Config.environmentArguments;
+        this.requiredEnvironmentVariables = new LinkedHashMap<>();
+        for(Map.Entry<String, Util.Pair<Module, Method>> entry: this.environmentModules.entrySet()){
+            this.requiredEnvironmentVariables.put(entry.getValue().getFirst(), args.get(entry.getKey()));
         }
         
         PayoffMatrices.setGame(gameNumber);
@@ -199,24 +240,28 @@ public class Population extends SimState
         field.clear();
         
         int i = 0;
+        this.playerMap = new HashMap<>();
         this.players = new ArrayList<>();
         int[][] matrix;
-        int strategy;
         Player p;
         schedule.scheduleRepeating(new Observer(), 1, 1);
+        schedule.scheduleRepeating(new Janitor(), 1, 1);
         while(i++ < numPlayers)
         {
             //initializes a player to a random strategy and schedule it
             matrix = PayoffMatrices.getPayoffMatrix(random.nextBoolean());
-            strategy = random.nextInt(matrix.length);
-            p = new Player(matrix, strategy, this);
+            p = new Player(matrix, this);
             
+            playerMap.put(p.id, p);
             players.add(p);
             p.setStoppable(schedule.scheduleRepeating(p));
             field.setObjectLocation(p, 
                     new Double2D(field.getWidth()*0.5 + random.nextDouble()-0.5,
                             field.getHeight()*0.5 + random.nextDouble()-0.5));
         }
+        //must set up after adding players to population
+        this.env = new Environment(this);
+        schedule.scheduleRepeating(env);
     }
     public Population(long seed)
     {
@@ -229,19 +274,23 @@ public class Population extends SimState
     
     /**
      * Adds a new Player to the population and schedules it to keep playing
-     * ad infinitum.
+     * ad infinitum. Player will begin to play during the next time step.
      * @param p 
+     * @return  
      */
     public Player addPlayer(Player p){
+        playerMap.put(p.id, p);
         players.add(p);
         p.setStoppable(schedule.scheduleRepeating(p));
         return p;
     }
     public void removePlayer(Player p){
+        playerMap.remove(p.id);
         players.remove(p);
     }
     
+    @Override
     public String toString() {
-        return "Population of " + this.players.size() + " Players.";
+        return "Population of " + this.playerMap.size() + " Players.";
     }
 }

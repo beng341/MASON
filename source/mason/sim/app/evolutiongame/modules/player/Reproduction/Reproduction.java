@@ -1,15 +1,16 @@
-package sim.app.evolutiongame.modules.Reproduction;
+package sim.app.evolutiongame.modules.player.Reproduction;
 
 import java.util.HashMap;
-import sim.app.evolutiongame.Player;
+import sim.app.evolutiongame.agents.Player;
 import sim.app.evolutiongame.Population;
 import sim.app.evolutiongame.modules.Module;
+import sim.app.evolutiongame.modules.player.PlayerModule;
 
 /**
  *
  * @author Ben Armstrong
  */
-public class Reproduction extends Module {
+public class Reproduction extends PlayerModule {
     
     private int numberOfBirths = 0;
     

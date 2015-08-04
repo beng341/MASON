@@ -1,9 +1,9 @@
-package sim.app.evolutiongame.modules.FindStrategy;
+package sim.app.evolutiongame.modules.player.FindStrategy;
 
 import java.util.HashMap;
-import sim.app.evolutiongame.Player;
+import sim.app.evolutiongame.agents.Player;
 import sim.app.evolutiongame.Population;
-import static sim.app.evolutiongame.modules.PlayGame.PlayGame.args;
+import static sim.app.evolutiongame.modules.player.PlayGame.PlayGame.args;
 
 /**
  * 

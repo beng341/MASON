@@ -1,16 +1,17 @@
-package sim.app.evolutiongame.modules.Death;
+package sim.app.evolutiongame.modules.player.Death;
 
 import java.util.HashMap;
-import sim.app.evolutiongame.Player;
+import sim.app.evolutiongame.agents.Player;
 import sim.app.evolutiongame.Population;
 import sim.app.evolutiongame.modules.Module;
+import sim.app.evolutiongame.modules.player.PlayerModule;
 
 /**
  * Basic method of handling death. Each player has a given deathrate, if the 
  * random value is less than that rate the player dies.
  * @author Ben Armstrong
  */
-public class Death extends Module{
+public class Death extends PlayerModule{
     
     private int numberOfDeaths = 0;
     

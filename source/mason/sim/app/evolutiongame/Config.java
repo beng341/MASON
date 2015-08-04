@@ -1,5 +1,6 @@
 package sim.app.evolutiongame;
 
+import sim.app.evolutiongame.agents.Player;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.internal.LinkedTreeMap;
@@ -39,22 +40,27 @@ public class Config {
     
     /**
      * This section contains a list of all module names pointing at:
-     *  1) A list of the names of all implementations of the module
-     *  2) A list of the arguments that the default implementation of the module
-     *  says are required.
+  1) A list of the names of all implementations of the module
+  2) A list of the playerArguments that the default implementation of the module
+  says are required.
      */
     public static final String ALL_MODULES = "All Modules";
-    public static LinkedHashMap<String, ArrayList<String>> moduleImplementations = findModuleImplementations();
+    public static LinkedHashMap<String, LinkedHashMap<String, ArrayList<String>>> moduleImplementations = findModuleImplementations();
     
     /**
      * The names of modules and module implementations that will be run on each
      * player, in the order that they will be run.
      */
     public static final String MODULES_TO_RUN = "Modules To Run (Ordered)";
-    public static LinkedHashMap<String, String> defaults = getDefaultImplementations(moduleImplementations);
+    public static LinkedHashMap<String, String> playerDefaults = 
+            getDefaultImplementations(moduleImplementations.get("player"));
+    public static LinkedHashMap<String, String> environmentDefaults = 
+            getDefaultImplementations(moduleImplementations.get("environment"));
     
-    
-    public static LinkedHashMap<String, String[]> arguments = getArguments(moduleImplementations.keySet());
+    public static LinkedHashMap<String, String[]> playerArguments = 
+            getArguments(moduleImplementations.get("player").keySet(), "player");
+    public static LinkedHashMap<String, String[]> environmentArguments = 
+            getArguments(moduleImplementations.get("environment").keySet(), "environment");
     
     /**
      * The list of modules pointing at implementations that should be run when
@@ -68,13 +74,20 @@ public class Config {
     private static final HashMap<String, Object> configElements = readConfigFile();
     
     public static final LinkedHashMap<String, Pair<Module, Method>> 
-            modulesToRun = Config.getRunMethods((LinkedTreeMap<String, String>)configElements.get(Config.MODULES_TO_RUN));
-    
-    public static final LinkedHashMap<String, Util.Pair<Module, Method>> 
-            preferredModules = getPreferredModuleMethods((LinkedTreeMap<String, String>)configElements.get(Config.PREFERRED_IMPLEMENTATIONS));
+            playerModulesToRun = Config.getRunMethods(
+                    ((LinkedTreeMap<String, LinkedTreeMap<String, String>>)configElements.get(Config.MODULES_TO_RUN)).get("player"), "player");
     
     public static final LinkedHashMap<String, Pair<Module, Method>> 
-            statisticsMethods = getStatisticsMethods(modulesToRun);
+            environmentModulesToRun = Config.getRunMethods(
+                    ((LinkedTreeMap<String, LinkedTreeMap<String, String>>)configElements.get(Config.MODULES_TO_RUN)).get("environment"), "environment");
+    
+    public static final LinkedHashMap<String, Util.Pair<Module, Method>> 
+            preferredModules = getPreferredModuleMethods((LinkedTreeMap<String, String>)configElements.get(Config.PREFERRED_IMPLEMENTATIONS), "player");
+    
+    public static final LinkedHashMap<String, Pair<Module, Method>> 
+            statisticsMethods = getStatisticsMethods(playerModulesToRun);
+    public static final LinkedHashMap<String, Pair<Module, Method>> 
+            cleanupMethods = getCleanUpMethods(playerModulesToRun);
     
     
     /**
@@ -88,26 +101,39 @@ public class Config {
      */
     public static void generateConfigFile() {
         
-        LinkedHashMap<String, ArrayList<String>> moduleImplementations = findModuleImplementations();
-        LinkedHashMap<String, String> defaults = getDefaultImplementations(moduleImplementations);
-        LinkedHashMap<String, String[]> arguments = getArguments(moduleImplementations.keySet());
         
-        LinkedHashMap<String, LinkedHashMap<String, Object>> modules = new LinkedHashMap<>();
-        for(String moduleName: moduleImplementations.keySet()){
+        //generate modules to run section with subsections for player and environment
+        LinkedHashMap<String, LinkedHashMap<String, String>> toRun = new LinkedHashMap<>();
+        toRun.put("player", playerDefaults);
+        toRun.put("environment", environmentDefaults);
+        
+        //generate All Modules section with subsections for player and environment
+        LinkedHashMap<String, LinkedHashMap<String, Object>> playerModules = new LinkedHashMap<>();
+        for(String moduleName: moduleImplementations.get("player").keySet()){
             LinkedHashMap<String, Object> tmp = new LinkedHashMap<>();
-            tmp.put("Implementations", moduleImplementations.get(moduleName));
-            tmp.put("Arguments", arguments.get(moduleName));
-            modules.put(moduleName, tmp);
+            tmp.put("Implementations", moduleImplementations.get("player").get(moduleName));
+            tmp.put("Arguments", playerArguments.get(moduleName));
+            playerModules.put(moduleName, tmp);
         }
+        LinkedHashMap<String, LinkedHashMap<String, Object>> environmentModules = new LinkedHashMap<>();
+        for(String moduleName: moduleImplementations.get("environment").keySet()){
+            LinkedHashMap<String, Object> tmp = new LinkedHashMap<>();
+            tmp.put("Implementations", moduleImplementations.get("environment").get(moduleName));
+            tmp.put("Arguments", environmentArguments.get(moduleName));
+            environmentModules.put(moduleName, tmp);
+        }
+        LinkedHashMap<String, Object> allModules = new LinkedHashMap<>();
+        allModules.put("player", playerModules);
+        allModules.put("environment", environmentModules);
         
         //use a LinkedHashMap to preserve order (which keeps the output file in
         //a more readable format).
         LinkedHashMap<String, Object> output = new LinkedHashMap<>();
-        output.put(ALL_MODULES, modules);
-        output.put(MODULES_TO_RUN, defaults);
+        output.put(ALL_MODULES, allModules);
+        output.put(MODULES_TO_RUN, toRun);
         
         //PREFERRED_IMPLEMENTATIONS should contain every module
-        output.put(PREFERRED_IMPLEMENTATIONS, defaults);
+        output.put(PREFERRED_IMPLEMENTATIONS, playerDefaults);
         
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try (FileWriter writer = new FileWriter(FILE_NAME)) {
@@ -128,7 +154,7 @@ public class Config {
      * of that module.
      * @return 
      */
-    public static LinkedHashMap<String, ArrayList<String>> findModuleImplementations() {
+    public static LinkedHashMap<String, LinkedHashMap<String, ArrayList<String>>> findModuleImplementations() {
         FileFilter folderFilter = new FileFilter() {
             @Override
             public boolean accept(File pathname){
@@ -142,24 +168,43 @@ public class Config {
         
         File folder = new File(MODULE_PATH);
         
-        LinkedHashMap<String, ArrayList<String>> map = new LinkedHashMap<>();
+        LinkedHashMap<String, ArrayList<String>> playerImplementations = new LinkedHashMap<>();
+        LinkedHashMap<String, ArrayList<String>> environmentImplementations = new LinkedHashMap<>();
         ArrayList<String> implementations = null;
-        String s = folder.getAbsolutePath();
         
-        for(File module: folder.listFiles(folderFilter)) {
-            for(File implementation: module.listFiles(fileFilter)) {
-                if(implementations == null)
-                    implementations = new ArrayList<>();
-                implementations.add(implementation.getName().replace(".java", ""));
+        //Search all the folders within the modules folder, then in each folder
+        //found, search for more folders, then in each of those folders, look
+        //for each java file.
+        //We should find modules/player and modules/environment to begin with
+        
+        for(File typeOfModule: folder.listFiles(folderFilter)) {
+            String s = typeOfModule.getName();
+            for(File module: typeOfModule.listFiles(folderFilter)) {
+                for(File implementation: module.listFiles(fileFilter)) {
+                    if(implementations == null)
+                        implementations = new ArrayList<>();
+                    if(implementation.getName().contains(".java")){
+                        implementations.add(implementation.getName().replace(".java", ""));
+                    }
+                }
+                if(implementations != null) {
+                    s = typeOfModule.getPath();
+                    if(typeOfModule.getName().contains("player")){
+                        playerImplementations.put(module.getName(), implementations);
+                    } else if(typeOfModule.getName().contains("environment")){
+                        environmentImplementations.put(module.getName(), implementations);
+                    }
+                    implementations = null;
+                }
+
             }
-            if(implementations != null) {
-                map.put(module.getName(), implementations);
-                implementations = null;
-            }
-            
         }
+        LinkedHashMap<String, LinkedHashMap<String, ArrayList<String>>>
+                results = new LinkedHashMap<>();
+        results.put("player", playerImplementations);
+        results.put("environment", environmentImplementations);
         
-        return map;
+        return results;
     }
     
     /**
@@ -209,7 +254,6 @@ public class Config {
         return configElements;
     }
     
-    
 
     /**
      * Generates a list of all methods that should be run for each player in
@@ -218,16 +262,17 @@ public class Config {
      * The classes that the methods are in should be specified in the
      * configuration file.
      * @param modules
+     * @param type
      * @return 
      */
-    public static LinkedHashMap<String, Pair<Module, Method>> getRunMethods(LinkedTreeMap<String, String> modules) {
+    public static LinkedHashMap<String, Pair<Module, Method>> getRunMethods(LinkedTreeMap<String, String> modules, String type) {
         
         LinkedHashMap<String, Pair<Module, Method>> methods = new LinkedHashMap<>();
         
         for(String module: modules.keySet()) {
             Class c = null;
             try {
-                c = Class.forName(MODULE_PACKAGE+"."+module+"."+modules.get(module));
+                c = Class.forName(MODULE_PACKAGE+"."+type+"."+module+"."+modules.get(module));
 
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
@@ -235,7 +280,17 @@ public class Config {
             
             Method m;
             try {
-                m = c.getMethod("run", Population.class, Player.class);
+                switch(type){
+                    case "player":
+                        m = c.getMethod("run", Population.class, Player.class);
+                        break;
+                    case "environment":
+                        m = c.getMethod("run", Population.class);
+                        break;
+                    default:
+                        m = c.getMethod("run", Population.class, Player.class);
+                        break;
+                }
                 methods.put(module, new Pair<>((Module)c.newInstance(), m));
             } catch (NoSuchMethodException ex){
                 System.out.println("No run() method found in " + c.toString());
@@ -272,14 +327,35 @@ public class Config {
         return result;
     }
     
-    public static LinkedHashMap<String, Pair<Module, Method>> getPreferredModuleMethods(LinkedTreeMap<String, String> modules) {
+    public static LinkedHashMap<String, Pair<Module, Method>> getCleanUpMethods(LinkedHashMap<String, Pair<Module, Method>> modules) {
+        
+        LinkedHashMap<String, Pair<Module, Method>> result = (LinkedHashMap<String, Pair<Module, Method>>) modules.clone();
+        
+        for(String module: modules.keySet()) {
+            Class c = result.get(module).getFirst().getClass();
+            
+            Method m;
+            try {
+                m = c.getMethod("cleanUp");
+                result.put(module, new Pair<>(result.get(module).getFirst(), m));
+            } catch (NoSuchMethodException ex){
+                //System.out.println("No run() method found in " + c.toString());
+            } catch(SecurityException ex) {
+                Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        return result;
+    }
+    
+    public static LinkedHashMap<String, Pair<Module, Method>> getPreferredModuleMethods(LinkedTreeMap<String, String> modules, String type) {
         
         LinkedHashMap<String, Pair<Module, Method>> methods = new LinkedHashMap<>();
         
         for(String module: modules.keySet()) {
             Class c = null;
             try {
-                c = Class.forName(MODULE_PACKAGE+"."+module+"."+modules.get(module));
+                c = Class.forName(MODULE_PACKAGE+"."+type+"."+module+"."+modules.get(module));
 
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
@@ -310,14 +386,14 @@ public class Config {
      * @param modules
      * @return 
      */
-    public static LinkedHashMap<String, String[]> getArguments(Set<String> modules)
+    public static LinkedHashMap<String, String[]> getArguments(Set<String> modules, String type)
     {
         LinkedHashMap<String, String[]> arguments = new LinkedHashMap<>();
         
         for(String module: modules) {
             Class c = null;
             try {
-                c = Class.forName(MODULE_PACKAGE+"."+module+"."+module);
+                c = Class.forName(MODULE_PACKAGE+"."+type+"."+module+"."+module);
                 Field field = c.getDeclaredField("args");
                 String[] args = (String[])field.get(null); //can be null since args should be static
                 arguments.put(module, args);
@@ -325,7 +401,7 @@ public class Config {
             {
                 //This will occur if someone simply forgets to add the args 
                 //array to their module.  This is not a big deal, it just means
-                //their are no arguments. Add an empty array to indicate this.
+                //their are no playerArguments. Add an empty array to indicate this.
                 arguments.put(module, new String[]{});
                 
             } catch (ClassNotFoundException ex) {

@@ -63,12 +63,12 @@ public class PayoffMatrices {
                 break;
             case 3:     //Lopsided Game - Player 1 wins
                  p1 = new int[][] {
-                    {5, 0},
-                    {5, 0}
+                    {5, -5},
+                    {5, -5}
                 };
                 p2 = new int[][] {
-                    {2, 0},
-                    {4, 4}
+                    {5, -5},
+                    {5, -5}
                 };
                 break;
             default:        //just give everyone a bit for trying..

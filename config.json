@@ -1,80 +1,107 @@
 {
   "All Modules": {
-    "FindOpponents": {
-      "Implementations": [
-        "FindOpponents"
-      ],
-      "Arguments": [
-        "potential_opponents"
-      ]
+    "player": {
+      "FindOpponents": {
+        "Implementations": [
+          "FindOpponents"
+        ],
+        "Arguments": [
+          "potential_opponents"
+        ]
+      },
+      "FindStrategy": {
+        "Implementations": [
+          "RandomStrategy",
+          "FindStrategy"
+        ],
+        "Arguments": [
+          "opponents",
+          "payoff_matrix"
+        ]
+      },
+      "Death": {
+        "Implementations": [
+          "Death"
+        ],
+        "Arguments": [
+          "payoff"
+        ]
+      },
+      "PlayGame": {
+        "Implementations": [
+          "PlayGameMultiPlayer",
+          "PlayGame"
+        ],
+        "Arguments": [
+          "opponents",
+          "payoff_matrix"
+        ]
+      },
+      "Movement": {
+        "Implementations": [
+          "Movement"
+        ],
+        "Arguments": [
+          "dunno",
+          "maybe_a_cell_to_move_to"
+        ]
+      },
+      "PotentialPartnerDiscovery": {
+        "Implementations": [
+          "AllPlayers",
+          "PotentialPartnerDiscovery",
+          "UnplayedPlayers"
+        ],
+        "Arguments": []
+      },
+      "Reproduction": {
+        "Implementations": [
+          "Reproduction"
+        ],
+        "Arguments": [
+          "payoff"
+        ]
+      }
     },
-    "FindStrategy": {
-      "Implementations": [
-        "RandomStrategy",
-        "FindStrategy"
-      ],
-      "Arguments": [
-        "opponents",
-        "payoff_matrix"
-      ]
-    },
-    "Death": {
-      "Implementations": [
-        "Death"
-      ],
-      "Arguments": [
-        "payoff"
-      ]
-    },
-    "PlayGame": {
-      "Implementations": [
-        "PlayGameMultiPlayer",
-        "PlayGame"
-      ],
-      "Arguments": [
-        "opponents",
-        "payoff_matrix"
-      ]
-    },
-    "Movement": {
-      "Implementations": [
-        "Movement"
-      ],
-      "Arguments": [
-        "dunno",
-        "maybe_a_cell_to_move_to"
-      ]
-    },
-    "PotentialPartnerDiscovery": {
-      "Implementations": [
-        "AllPlayers",
-        "PotentialPartnerDiscovery"
-      ],
-      "Arguments": []
-    },
-    "Reproduction": {
-      "Implementations": [
-        "Reproduction"
-      ],
-      "Arguments": [
-        "payoff"
-      ]
+    "environment": {
+      "RandomDeath": {
+        "Implementations": [
+          "RandomDeath"
+        ],
+        "Arguments": []
+      },
+      "MovePlayers": {
+        "Implementations": [
+          "TestModule",
+          "MovePlayers"
+        ],
+        "Arguments": [
+          "test",
+          "test_2"
+        ]
+      }
     }
   },
   "Modules To Run (Ordered)": {
-    "PotentialPartnerDiscovery": "AllPlayers",
-    "FindOpponents": "FindOpponents",
-    "PlayGame": "PlayGame",
-    "Reproduction": "Reproduction",
-    "Death": "Death"
+    "player": {
+      "FindOpponents": "FindOpponents",
+      "PotentialPartnerDiscovery": "AllPlayers",
+      "PlayGame": "PlayGame",
+      "Reproduction": "Reproduction",
+      "Death": "Death"
+    },
+    "environment": {
+      "RandomDeath": "RandomDeath",
+      "MovePlayers": "MovePlayers"
+    }
   },
   "Preferred Implementations": {
     "FindOpponents": "FindOpponents",
-    "FindStrategy": "RandomStrategy",
+    "FindStrategy": "FindStrategy",
     "Death": "Death",
     "PlayGame": "PlayGame",
     "Movement": "Movement",
-    "PotentialPartnerDiscovery": "AllPlayers",
+    "PotentialPartnerDiscovery": "PotentialPartnerDiscovery",
     "Reproduction": "Reproduction"
   }
 }

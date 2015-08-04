@@ -1,10 +1,14 @@
-package sim.app.evolutiongame;
+package sim.app.evolutiongame.agents;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import sim.app.evolutiongame.Config;
+import sim.app.evolutiongame.PayoffMatrices;
+import sim.app.evolutiongame.Population;
+import sim.app.evolutiongame.Util;
 import sim.app.evolutiongame.modules.Module;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -72,8 +76,4 @@ public class Observer implements Steppable {
         
         return null;
     }
-    
-    
-    
-    
 }

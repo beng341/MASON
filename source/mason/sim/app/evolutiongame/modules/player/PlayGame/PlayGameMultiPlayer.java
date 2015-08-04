@@ -1,6 +1,6 @@
-package sim.app.evolutiongame.modules.PlayGame;
+package sim.app.evolutiongame.modules.player.PlayGame;
 
-import sim.app.evolutiongame.Player;
+import sim.app.evolutiongame.agents.Player;
 import sim.app.evolutiongame.Population;
 import sim.app.evolutiongame.modules.Module;
 

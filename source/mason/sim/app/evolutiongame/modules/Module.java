@@ -6,7 +6,7 @@
 package sim.app.evolutiongame.modules;
 
 import java.util.HashMap;
-import sim.app.evolutiongame.Player;
+import sim.app.evolutiongame.agents.Player;
 import sim.app.evolutiongame.Population;
 
 /**
@@ -42,6 +42,7 @@ public abstract class Module {
      * @param p
      */
     public abstract void run(Population state, Player p);
+    public abstract void run(Population p);
     /**
      * Save each element in the given map's value list as its key in the list of
      * variables held in Player.
@@ -59,4 +60,11 @@ public abstract class Module {
      * @param args
      */
     public Object trackStatistics(){ return null; }
+    
+    /**
+     * Called by the janitor agent to clear any variables that a module uses that
+     * should be reset after each timestep. i.e. Clearing the list of players that 
+     * have played in a given timestep.
+     */
+    public void cleanUp(){}
 }

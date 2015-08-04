@@ -1,4 +1,4 @@
-package sim.app.evolutiongame;
+package sim.app.evolutiongame.agents;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import sim.app.evolutiongame.Population;
+import sim.app.evolutiongame.Util;
 import sim.app.evolutiongame.modules.Module;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -60,16 +62,9 @@ public class Player implements Steppable
      * @param payoff Matrix representing payoff functions. This player gets the 
      * payoff at p[i][j] if it plays strategy i and the other player does
      * strategy j.
+     * @param pop
      */
     public Player(int[][] payoff, Population pop)
-    {
-        this.payoffMatrix = payoff;
-        this.pop = pop;
-        this.id = id_count++;
-        this.variables = new HashMap<>();
-        initializeConstantVariables();
-    }
-    public Player(int[][] payoff, int strategy, Population pop)
     {
         this.payoffMatrix = payoff;
         this.pop = pop;
@@ -83,6 +78,8 @@ public class Player implements Steppable
         this.pop = pop;
         this.id = id_count++;
         this.variables = new HashMap<>();
+        if(parent.hasVariable("strategy"))
+            this.storeVariable("strategy", parent.getVariable("strategy"));
         initializeConstantVariables();
     }
 
@@ -94,10 +91,8 @@ public class Player implements Steppable
     private void initializeConstantVariables()
     {
         this.storeVariable("payoff_matrix", this.payoffMatrix);
-        this.storeVariable("last_played", pop.schedule.getTime()-1);
+        this.storeVariable("last_played", -1.0);
     }
-    
-    
     
     /**
      * Remove this player from the population and from the schedule so that it 
@@ -175,7 +170,6 @@ public class Player implements Steppable
         return false;
     }
     
-    
     /**
      * Used to run a specific module and set the result as per normal. An example
      * usage might be to run a module that will find the strategy a player should
@@ -187,7 +181,7 @@ public class Player implements Steppable
         boolean runModule = true;
             
         //check for existence of all required variables
-        for(String name: pop.requiredVariables.get(module.getFirst())){
+        for(String name: pop.requiredPlayerVariables.get(module.getFirst())){
             if(!this.hasVariable(name)){
                 runModule = false;
                 break;
@@ -204,9 +198,9 @@ public class Player implements Steppable
     public void step(SimState state){
         
         pop = (Population)state;
-        this.birthRate = pop.birthRate;
-        this.birthRateModifier = pop.birthRateModifier;
-        this.deathRate = pop.deathRate;
+        this.birthRate = pop.getBirthRate();
+        this.birthRateModifier = pop.getBirthRateModifier();
+        this.deathRate = pop.getDeathRate();
         
         //Iterate over each module, in the order that is specified. Run each
         //module only after checking that the proper variables all exist.
@@ -215,28 +209,6 @@ public class Player implements Steppable
         for(Map.Entry<String, Util.Pair<Module, Method>> entry: pop.playerModules.entrySet()){
             this.runModule(entry.getValue());
         }
-        
-        
-//        //find potential opponents (currently does not take into account the last
-//        //played time)
-//        ArrayList<Player> potentialOpponents = null;
-//        
-//        if(result != null) {
-//            potentialOpponents = (ArrayList<Player>)result;
-//        }
-//        
-//        //if not played yet this round, play now
-//        //doing this will update lastPlayed, as well as set the payoff value
-//        if(lastPlayed < pop.schedule.getTime())
-//            playGameAgainst(potentialOpponents);
-//        
-//        //maybe do something with the payoff gained
-//            //modify energy levels, change strategy, etc.
-//        usePayoff(payoff);
-//        
-//        tryToReproduce(payoff);
-//        
-//        tryToDie();
         
     }
     

@@ -1,14 +1,15 @@
-package sim.app.evolutiongame.modules.Movement;
+package sim.app.evolutiongame.modules.player.Movement;
 
-import sim.app.evolutiongame.Player;
+import sim.app.evolutiongame.agents.Player;
 import sim.app.evolutiongame.Population;
 import sim.app.evolutiongame.modules.Module;
+import sim.app.evolutiongame.modules.player.PlayerModule;
 
 /**
  *
  * @author Ben Armstrong
  */
-public class Movement extends Module {
+public class Movement extends PlayerModule {
     
     /**
      * A list of arguments required for this module to be run. If the player 
