@@ -19,7 +19,7 @@ public class FindOpponents extends PlayerModule {
      * wishing to run this module does not have variables with these names, the
      * module will not be run.
      */
-    public static final String[] args = {"potential_opponents"};
+    public static final String[] args = {};
     
     /**
      * Finds and saves an ArrayList<Player> containing a single player, randomly

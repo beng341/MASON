@@ -48,7 +48,7 @@ public class UnplayedPlayers extends PotentialPartnerDiscovery {
     }
     
     @Override
-    public void cleanUp(){
+    public void cleanUp(Population p){
         this.unPlayed = null;
     }
 }

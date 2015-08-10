@@ -2,7 +2,6 @@ package sim.app.evolutiongame.modules.player.Movement;
 
 import sim.app.evolutiongame.agents.Player;
 import sim.app.evolutiongame.Population;
-import sim.app.evolutiongame.modules.Module;
 import sim.app.evolutiongame.modules.player.PlayerModule;
 
 /**
@@ -16,7 +15,7 @@ public class Movement extends PlayerModule {
      * wishing to run this module does not have variables with these names, the
      * module will not be run.
      */
-    public static final String[] args = {"dunno", "maybe_a_cell_to_move_to"};
+    public static final String[] args = {"should_move"};
 
     @Override
     public void run(Population state, Player p) {

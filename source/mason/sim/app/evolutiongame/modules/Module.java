@@ -8,6 +8,7 @@ package sim.app.evolutiongame.modules;
 import java.util.HashMap;
 import sim.app.evolutiongame.agents.Player;
 import sim.app.evolutiongame.Population;
+import sim.app.evolutiongame.agents.Environment;
 
 /**
  * This class is not strictly necessary, its main goal is to suggest to 
@@ -41,8 +42,8 @@ public abstract class Module {
      * @param state
      * @param p
      */
-    public abstract void run(Population state, Player p);
-    public abstract void run(Population p);
+    public abstract void run(Population pop, Player p);
+    public abstract void run(Population pop, Environment env);
     /**
      * Save each element in the given map's value list as its key in the list of
      * variables held in Player.
@@ -66,5 +67,17 @@ public abstract class Module {
      * should be reset after each timestep. i.e. Clearing the list of players that 
      * have played in a given timestep.
      */
-    public void cleanUp(){}
+    public void cleanUp(Population pop){}
+    
+    /**
+     * Called once, at the beginning of the simulation. Modules implementing 
+     * this method should set some required variable for the Players, such as
+     * strategy or initial energy (in the case of Smaldino).
+     * The Player version of this is called for each player while the environment
+     * version is called just once for the environment.
+     * @param pop
+     * @param p
+     */
+    public abstract void setup(Population pop, Player p);
+    public abstract void setup(Population pop, Environment env);
 }

@@ -32,7 +32,6 @@ public class Observer implements Steppable {
             pop.finish();
         }
         
-        
         int[] strategyCounts = new int[PayoffMatrices.getMaxNumStrategies()];
         for(Player p: pop.getPlayers()){
             if(!p.hasVariable("strategy")){

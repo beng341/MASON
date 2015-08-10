@@ -38,7 +38,7 @@ public class ObjectGridPortrayal2D extends FieldPortrayal2D
         
     public void setField(Object field)
         {
-        if (field instanceof ObjectGrid2D ) super.setField(field);
+        if (field instanceof ObjectGrid2D || field instanceof DenseGrid2D) super.setField(field);
         else throw new RuntimeException("Invalid field for ObjectGridPortrayal2D: " + field);
         }
         

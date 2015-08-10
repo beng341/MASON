@@ -29,7 +29,7 @@ public class Janitor implements Steppable {
     
     public Object invokeMethod(Method m, Module module, Population pop) {
         try {
-            return m.invoke(module);
+            return m.invoke(module, pop);
         } catch (IllegalAccessException ex) {
             Logger.getLogger(Player.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IllegalArgumentException ex) {

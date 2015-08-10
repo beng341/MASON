@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sim.app.evolutiongame.Util.Pair;
+import sim.app.evolutiongame.agents.Environment;
 import sim.app.evolutiongame.modules.Module;
 
 /**
@@ -68,26 +69,40 @@ public class Config {
      */
     public static final String PREFERRED_IMPLEMENTATIONS = "Preferred Implementations";
     
-    
-    
-    
     private static final HashMap<String, Object> configElements = readConfigFile();
     
     public static final LinkedHashMap<String, Pair<Module, Method>> 
-            playerModulesToRun = Config.getRunMethods(
+            playerModulesToRun = configElements.isEmpty() ? null: Config.getRunMethods(
                     ((LinkedTreeMap<String, LinkedTreeMap<String, String>>)configElements.get(Config.MODULES_TO_RUN)).get("player"), "player");
     
     public static final LinkedHashMap<String, Pair<Module, Method>> 
-            environmentModulesToRun = Config.getRunMethods(
+            environmentModulesToRun = configElements.isEmpty() ? null: 
+            Config.getRunMethods(
                     ((LinkedTreeMap<String, LinkedTreeMap<String, String>>)configElements.get(Config.MODULES_TO_RUN)).get("environment"), "environment");
     
     public static final LinkedHashMap<String, Util.Pair<Module, Method>> 
-            preferredModules = getPreferredModuleMethods((LinkedTreeMap<String, String>)configElements.get(Config.PREFERRED_IMPLEMENTATIONS), "player");
+            preferredPlayerModules = configElements.isEmpty() ? null: 
+            getPreferredModuleMethods(
+                    ((LinkedTreeMap<String, LinkedTreeMap<String, String>>)configElements.get(Config.PREFERRED_IMPLEMENTATIONS)).get("player"), "player");
+    public static final LinkedHashMap<String, Util.Pair<Module, Method>> 
+            preferredEnvironmentModules = configElements.isEmpty() ? null: 
+            getPreferredModuleMethods(
+                    ((LinkedTreeMap<String, LinkedTreeMap<String, String>>)configElements.get(Config.PREFERRED_IMPLEMENTATIONS)).get("environment"), "environment");
+    
+    
+    public static final String SETUP_MODULES = "Setup Modules";
+    
+    public static final LinkedHashMap<String, Util.Pair<Module, Method>> 
+            playerSetupModules = configElements.isEmpty() ? null: 
+            getSetupMethods(((LinkedTreeMap<String, LinkedTreeMap<String, String>>)configElements.get(Config.SETUP_MODULES)).get("player"), "player");
+    public static final LinkedHashMap<String, Util.Pair<Module, Method>> 
+            environmentSetupModules = configElements.isEmpty() ? null: 
+            getSetupMethods(((LinkedTreeMap<String, LinkedTreeMap<String, String>>)configElements.get(Config.SETUP_MODULES)).get("environment"), "environment");
     
     public static final LinkedHashMap<String, Pair<Module, Method>> 
-            statisticsMethods = getStatisticsMethods(playerModulesToRun);
+            statisticsMethods = configElements.isEmpty() ? null: getStatisticsMethods(playerModulesToRun);
     public static final LinkedHashMap<String, Pair<Module, Method>> 
-            cleanupMethods = getCleanUpMethods(playerModulesToRun);
+            cleanupMethods = configElements.isEmpty() ? null: getCleanUpMethods(playerModulesToRun);
     
     
     /**
@@ -126,14 +141,21 @@ public class Config {
         allModules.put("player", playerModules);
         allModules.put("environment", environmentModules);
         
+        //PREFERRED_IMPLEMENTATIONS should contain every module
+        LinkedHashMap<String, Object> preferred = new LinkedHashMap<>();
+        preferred.put("player", playerDefaults);
+        preferred.put("environment", environmentDefaults);
+        
         //use a LinkedHashMap to preserve order (which keeps the output file in
         //a more readable format).
         LinkedHashMap<String, Object> output = new LinkedHashMap<>();
         output.put(ALL_MODULES, allModules);
         output.put(MODULES_TO_RUN, toRun);
+        output.put(PREFERRED_IMPLEMENTATIONS, preferred);
         
-        //PREFERRED_IMPLEMENTATIONS should contain every module
-        output.put(PREFERRED_IMPLEMENTATIONS, playerDefaults);
+        //Initial Modules should contain an example of how to write modules into
+        //the section.
+        output.put(SETUP_MODULES, preferred);
         
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try (FileWriter writer = new FileWriter(FILE_NAME)) {
@@ -285,7 +307,7 @@ public class Config {
                         m = c.getMethod("run", Population.class, Player.class);
                         break;
                     case "environment":
-                        m = c.getMethod("run", Population.class);
+                        m = c.getMethod("run", Population.class, Environment.class);
                         break;
                     default:
                         m = c.getMethod("run", Population.class, Player.class);
@@ -293,7 +315,11 @@ public class Config {
                 }
                 methods.put(module, new Pair<>((Module)c.newInstance(), m));
             } catch (NoSuchMethodException ex){
-                System.out.println("No run() method found in " + c.toString());
+                System.err.println("No run() method found in " + c.toString());
+            } catch(NullPointerException ex){
+                if(null == c){
+                    System.err.println("No class found for " + modules.get(module));
+                }
             } catch(SecurityException ex) {
                 Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InstantiationException ex) {
@@ -336,7 +362,7 @@ public class Config {
             
             Method m;
             try {
-                m = c.getMethod("cleanUp");
+                m = c.getMethod("cleanUp", Population.class);
                 result.put(module, new Pair<>(result.get(module).getFirst(), m));
             } catch (NoSuchMethodException ex){
                 //System.out.println("No run() method found in " + c.toString());
@@ -363,10 +389,61 @@ public class Config {
             
             Method m;
             try {
-                m = c.getMethod("run", Population.class, Player.class);
+                switch(type){
+                    case "player":
+                        m = c.getMethod("run", Population.class, Player.class);
+                        break;
+                    case "environment":
+                        m = c.getMethod("run", Population.class, Environment.class);
+                        break;
+                    default:
+                        m = c.getMethod("run", Population.class, Player.class);
+                        break;
+                }
                 methods.put(module, new Pair<>((Module)c.newInstance(), m));
             } catch (NoSuchMethodException ex){
                 System.out.println("No run() method found in " + c.toString());
+            } catch(SecurityException ex) {
+                Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InstantiationException ex) {
+                Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex) {
+                Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        return methods;
+    }
+    
+    public static LinkedHashMap<String, Pair<Module, Method>> getSetupMethods(LinkedTreeMap<String, String> modules, String type) {
+        
+        LinkedHashMap<String, Pair<Module, Method>> methods = new LinkedHashMap<>();
+        
+        for(String module: modules.keySet()) {
+            Class c = null;
+            try {
+                c = Class.forName(MODULE_PACKAGE+"."+type+"."+module+"."+modules.get(module));
+
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            Method m;
+            try {
+                switch(type){
+                    case "player":
+                        m = c.getMethod("setup", Population.class, Player.class);
+                        break;
+                    case "environment":
+                        m = c.getMethod("setup", Population.class, Environment.class);
+                        break;
+                    default:
+                        m = c.getMethod("setup", Population.class, Player.class);
+                        break;
+                }
+                methods.put(module, new Pair<>((Module)c.newInstance(), m));
+            } catch (NoSuchMethodException ex){
+                System.err.println("No setup() method found in " + c.toString());
             } catch(SecurityException ex) {
                 Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InstantiationException ex) {
@@ -401,11 +478,15 @@ public class Config {
             {
                 //This will occur if someone simply forgets to add the args 
                 //array to their module.  This is not a big deal, it just means
-                //their are no playerArguments. Add an empty array to indicate this.
+                //their are no arguments. Add an empty array to indicate this.
                 arguments.put(module, new String[]{});
                 
             } catch (ClassNotFoundException ex) {
-                Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+                
+                //This will occur if an implementation exists for a module that
+                //has no implementation with the same name as the module itself
+                arguments.put(module, new String[]{});
+                
             } catch (SecurityException ex)
             {
                 Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);

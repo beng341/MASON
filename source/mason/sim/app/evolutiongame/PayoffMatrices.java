@@ -61,14 +61,14 @@ public class PayoffMatrices {
                     {4, 4}
                 };
                 break;
-            case 3:     //Lopsided Game - Player 1 wins
+            case 3:     //Prisoners Dilemma
                  p1 = new int[][] {
-                    {5, -5},
-                    {5, -5}
+                    {3, -1},
+                    {5, 0}
                 };
                 p2 = new int[][] {
-                    {5, -5},
-                    {5, -5}
+                    {3, -1},
+                    {5, 0}
                 };
                 break;
             default:        //just give everyone a bit for trying..

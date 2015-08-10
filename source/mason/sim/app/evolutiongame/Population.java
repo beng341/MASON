@@ -2,19 +2,18 @@ package sim.app.evolutiongame;
 
 import sim.app.evolutiongame.agents.Player;
 import sim.app.evolutiongame.agents.Observer;
-import com.google.gson.internal.LinkedTreeMap;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.PriorityQueue;
+import sim.app.evolutiongame.Util.Pair;
 import sim.app.evolutiongame.agents.Environment;
 import sim.app.evolutiongame.agents.Janitor;
 import sim.app.evolutiongame.modules.Module;
 import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
+import sim.field.grid.DenseGrid2D;
 import sim.util.Double2D;
 
 
@@ -30,12 +29,12 @@ public class Population extends SimState
      **************************************************************************/
     private HashMap<Integer, Player> playerMap;
     private ArrayList<Player> players;
-    private Environment env;
+    public Environment env;
     
     /**
      * Used to graphically represent the players. Currently has 250000 cells.
      */
-    public Continuous2D field = new Continuous2D(1.0, 500, 500);
+    public DenseGrid2D grid;
     
     /**
      * A list of methods that are run once in each step() method of each player.
@@ -82,9 +81,9 @@ public class Population extends SimState
      */
     boolean printData = true;
     
-    long numPlayers = 100;//should probably have at least 1000 for anything useful
-    private long gridHeight = 15;
-    private long gridWidth = 15;
+    long numPlayers = 1000;//should probably have at least 1000 for anything useful
+    private long gridHeight = 100;
+    private long gridWidth = 100;
     
     int strategyDistribution = RANDOMCHOICES;
     /** Choose this to have agents that randomly choose a strategy */
@@ -92,11 +91,12 @@ public class Population extends SimState
     /** Choose this to have agents that are assigned a random strategy that will not change */
     public static int RANDOMAGENTS = 1;
     
-    int gameNumber = ModifiedRockPaperScissors;
+    int gameNumber = PrisonersDilemma;
     /** Game numbers that correspond to payoff matrices found in PayoffMatrices */
     public static int RockPaperScissors = 0;
     public static int ModifiedRockPaperScissors = 1;
     public static int EntryDeterrence = 2;
+    public static int PrisonersDilemma = 3;
     
     public boolean getPrintData(){
         return this.printData;
@@ -115,7 +115,7 @@ public class Population extends SimState
         this.numPlayers = num;
     }
     public Object domNumPlayers(){
-        return new sim.util.Interval(0, 500);
+        return new sim.util.Interval(0, 100000);
     }
     /*
     * Methods to set grid height and width.
@@ -198,7 +198,7 @@ public class Population extends SimState
     }
     public Object domGameNumber(){
         return new String[]{"Rock Paper Scissors", "Modified Rock Paper Scissors",
-                "Entry Deterrence Game"};
+                "Entry Deterrence Game", "Prisoners Dilemma"};
     }
     public ArrayList<Player> getPlayers()
     {
@@ -220,7 +220,7 @@ public class Population extends SimState
         //get list of methods that each player will run at every step
         this.playerModules = Config.playerModulesToRun;
         this.environmentModules = Config.environmentModulesToRun;
-        this.preferredModules = Config.preferredModules;
+        this.preferredModules = Config.preferredPlayerModules;
         
         LinkedHashMap<String, String[]> args = Config.playerArguments;
         
@@ -236,8 +236,6 @@ public class Population extends SimState
         }
         
         PayoffMatrices.setGame(gameNumber);
-        
-        field.clear();
         
         int i = 0;
         this.playerMap = new HashMap<>();
@@ -255,13 +253,19 @@ public class Population extends SimState
             playerMap.put(p.id, p);
             players.add(p);
             p.setStoppable(schedule.scheduleRepeating(p));
-            field.setObjectLocation(p, 
-                    new Double2D(field.getWidth()*0.5 + random.nextDouble()-0.5,
-                            field.getHeight()*0.5 + random.nextDouble()-0.5));
+            
+            //run setup modules
+            for(Pair<Module, Method> pair: Config.playerSetupModules.values()){
+                p.runModule(pair);
+            }
+            
         }
         //must set up after adding players to population
         this.env = new Environment(this);
         schedule.scheduleRepeating(env);
+        for(Pair<Module, Method> env_modules: Config.environmentSetupModules.values()){
+            this.env.runModule(env_modules);
+        }
     }
     public Population(long seed)
     {
@@ -291,6 +295,9 @@ public class Population extends SimState
     
     @Override
     public String toString() {
-        return "Population of " + this.playerMap.size() + " Players.";
+        if(this.playerMap != null)
+            return "Population of " + this.playerMap.size() + " Players.";
+        else
+            return "Empty Population";
     }
 }

@@ -20,7 +20,7 @@ public class Death extends PlayerModule{
      * wishing to run this module does not have variables with these names, the
      * module will not be run.
      */
-    public static final String[] args = {"payoff"};
+    public static final String[] args = {};
     
     @Override
     public void run(Population state, Player p)

@@ -2,7 +2,6 @@ package sim.app.evolutiongame.agents;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -126,6 +125,10 @@ public class Player implements Steppable
         return this.variables.containsKey(name);
     }
     
+    public void removeVariable(String name){
+        this.variables.remove(name);
+    }
+    
     /**
      * Invokes a method given by the user and catches any errors.
      * @param m
@@ -181,12 +184,15 @@ public class Player implements Steppable
         boolean runModule = true;
             
         //check for existence of all required variables
-        for(String name: pop.requiredPlayerVariables.get(module.getFirst())){
-            if(!this.hasVariable(name)){
-                runModule = false;
-                break;
+        if(pop.requiredPlayerVariables.containsKey(module.getFirst())){
+            for(String name: pop.requiredPlayerVariables.get(module.getFirst())){
+                if(!this.hasVariable(name)){
+                    runModule = false;
+                    break;
+                }
             }
         }
+        
         
         if(runModule) {
             Method currentMethod = module.getSecond();
