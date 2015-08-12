@@ -71,6 +71,26 @@ public class PayoffMatrices {
                     {5, 0}
                 };
                 break;
+            case 4:         //Everyone gets zero always
+                 p1 = new int[][] {
+                    {0, 0},
+                    {0, 0}
+                };
+                p2 = new int[][] {
+                    {0, 0},
+                    {0, 0}
+                };
+                break;
+            case 5:         //everyone gets 5 always
+                 p1 = new int[][] {
+                    {5, 5},
+                    {5, 5}
+                };
+                p2 = new int[][] {
+                    {5, 5},
+                    {5, 5}
+                };
+                break;
             default:        //just give everyone a bit for trying..
                 p1 = new int[][] {
                     {1}

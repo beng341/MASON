@@ -1,5 +1,6 @@
 package sim.app.evolutiongame.modules.player.PlayGame;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,15 +23,12 @@ public class PlayGame extends PlayerModule {
     public static final String[] args = {"opponent", "payoff_matrix"};
     
     private final ArrayList<Integer> payoffs = new ArrayList<>();
-    private int noPayoffCount = 0;
-    private int alreadyPlayedCount = 0;
     
-    int runCount = 0;
+    int gamesPlayed = 0;
     
     @Override
     public void run(Population state, Player p)
     {
-        runCount++;
         this.p = p;
         
         HashMap<String, Object> arguments = getArguments(args);
@@ -49,8 +47,8 @@ public class PlayGame extends PlayerModule {
         }
         
         //check if we or the selected opponent have played already this timestep
-        if(((Double)p.getVariable("last_played")) < state.schedule.getTime() && 
-                ((Double)opponent.getVariable("last_played")) < state.schedule.getTime()){
+        if(((Long)p.getVariable("last_played")) < state.schedule.getSteps() && 
+                ((Long)opponent.getVariable("last_played")) < state.schedule.getSteps()){
             
             //get payoff from this player against the opponent
             int[][] my_matrix = (int[][]) arguments.get("payoff_matrix");
@@ -66,9 +64,11 @@ public class PlayGame extends PlayerModule {
             p.storeVariable("payoff", my_payoff);
             opponent.storeVariable("payoff", opp_payoff);
             
+            gamesPlayed++;
+            
             //update the last_played time
-            p.storeVariable("last_played", state.schedule.getTime());
-            opponent.storeVariable("last_played", state.schedule.getTime());
+            p.storeVariable("last_played", state.schedule.getSteps());
+            opponent.storeVariable("last_played", state.schedule.getSteps());
         } else {
 //            //already played, or the first round.
 //            //If payoff does not exist yet, set it to be zero. This should only
@@ -94,22 +94,34 @@ public class PlayGame extends PlayerModule {
         }
     }
     
+    ArrayList<ArrayList<String>> data;
     @Override
     public Object trackStatistics(){
+        if(null == data)
+            data = new ArrayList<>();
+        else
+            data.clear();
+        data.add(new ArrayList<>());
+        data.add(new ArrayList<>());
+        
+        data.get(0).add("Games Played");
+        data.get(1).add("" + gamesPlayed);
+        gamesPlayed = 0;
+        
         double avgPayoff = 0;
         for(int payoff: payoffs)
             avgPayoff += payoff;
         avgPayoff = avgPayoff / payoffs.size();
         payoffs.clear();
         
-        String avgPayoffString = "Average Payoff: " + avgPayoff;
-        String runCountString =  "PlayGame ran " + runCount + " times.";
+        if(Double.isNaN(avgPayoff)){
+            data.get(0).add("Avg. Payoff");
+            data.get(1).add("No payoffs");
+        } else {
+            data.get(0).add("Avg. Payoff");
+            data.get(1).add(new DecimalFormat("#.##").format(avgPayoff));
+        }
         
-        noPayoffCount = 0;
-        alreadyPlayedCount = 0;
-        runCount = 0;
-        
-        return avgPayoffString + "\n"
-                + runCountString;
+        return data;
     }
 }

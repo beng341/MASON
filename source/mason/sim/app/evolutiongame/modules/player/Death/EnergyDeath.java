@@ -1,5 +1,6 @@
 package sim.app.evolutiongame.modules.player.Death;
 
+import java.util.ArrayList;
 import sim.app.evolutiongame.Population;
 import sim.app.evolutiongame.Util.Pair;
 import sim.app.evolutiongame.agents.Player;
@@ -32,11 +33,21 @@ public class EnergyDeath extends PlayerModule{
         }
     }
     
+    ArrayList<ArrayList<String>> data;
     @Override
     public Object trackStatistics(){
-        String toReturn =  "Deaths: " + deathCount;
+        if(null == data)
+            data = new ArrayList<>();
+        else
+            data.clear();
+        data.add(new ArrayList<>());
+        data.add(new ArrayList<>());
+        
+        data.get(0).add("Deaths");
+        data.get(1).add(""+deathCount);
         deathCount = 0;
-        return toReturn;
+        
+        return data;
     }
 
 }

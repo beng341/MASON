@@ -1,5 +1,7 @@
 package sim.app.evolutiongame.modules.player.CostOfLiving;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import sim.app.evolutiongame.Population;
 import sim.app.evolutiongame.agents.Environment;
 import sim.app.evolutiongame.agents.Player;
@@ -13,7 +15,7 @@ import sim.app.evolutiongame.modules.player.PlayerModule;
 public class EnergyCostOfLiving extends PlayerModule {
 
     private static final double cost = 1.5;
-    private int energyRemoved = 0;
+    private double energyRemoved = 0;
     
     @Override
     public void run(Population state, Player p)
@@ -28,10 +30,20 @@ public class EnergyCostOfLiving extends PlayerModule {
         }
     }
     
+    ArrayList<ArrayList<String>> data;
     @Override
     public Object trackStatistics(){
-        String toReturn = "Energy Removed: " + energyRemoved;
+        if(null == data)
+            data = new ArrayList<>();
+        else
+            data.clear();
+        data.add(new ArrayList<>());
+        data.add(new ArrayList<>());
+        
+        data.get(0).add("Energy Removed");
+        data.get(1).add(new DecimalFormat("#.#").format(energyRemoved));
         energyRemoved = 0;
-        return toReturn;
+        
+        return data;
     }
 }

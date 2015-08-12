@@ -30,6 +30,7 @@ public class Population extends SimState
     private HashMap<Integer, Player> playerMap;
     private ArrayList<Player> players;
     public Environment env;
+    private Observer obs;
     
     /**
      * Used to graphically represent the players. Currently has 250000 cells.
@@ -80,8 +81,10 @@ public class Population extends SimState
      * True if data should be printed to the console at each step.
      */
     boolean printData = true;
+    boolean saveData = true;
     
     long numPlayers = 1000;//should probably have at least 1000 for anything useful
+    long maxPlayers = 5000;
     private long gridHeight = 100;
     private long gridWidth = 100;
     
@@ -97,11 +100,20 @@ public class Population extends SimState
     public static int ModifiedRockPaperScissors = 1;
     public static int EntryDeterrence = 2;
     public static int PrisonersDilemma = 3;
+    public static int ZeroPayoffGame = 4;
+    public static int FivePayoffGame = 5;
     
     public boolean getPrintData(){
         return this.printData;
     }
     public void setPrintData(boolean print){
+        this.printData = print;
+    }
+    
+    public boolean getSaveData(){
+        return this.printData;
+    }
+    public void setSaveData(boolean print){
         this.printData = print;
     }
     
@@ -115,6 +127,15 @@ public class Population extends SimState
         this.numPlayers = num;
     }
     public Object domNumPlayers(){
+        return new sim.util.Interval(0, 100000);
+    }
+    public long getMaxPlayers(){
+        return this.maxPlayers;
+    }
+    public void setMaxPlayers(long num){
+        this.maxPlayers = num;
+    }
+    public Object domMaxPlayers(){
         return new sim.util.Interval(0, 100000);
     }
     /*
@@ -136,7 +157,7 @@ public class Population extends SimState
         this.gridHeight = num;
     }
     public Object domGridHeight(){
-        return new sim.util.Interval(0, 100000);
+        return new sim.util.Interval(0, 500);
     }
     /*
      * Methods to let user modify birth rate of all players.
@@ -198,7 +219,8 @@ public class Population extends SimState
     }
     public Object domGameNumber(){
         return new String[]{"Rock Paper Scissors", "Modified Rock Paper Scissors",
-                "Entry Deterrence Game", "Prisoners Dilemma"};
+                "Entry Deterrence Game", "Prisoners Dilemma", "Zero Payoff To All", 
+                "5 Payoff to All"};
     }
     public ArrayList<Player> getPlayers()
     {
@@ -211,11 +233,15 @@ public class Population extends SimState
         return this.playerMap;
     }
     
-    
     @Override
     public void start()
     {
         super.start();
+        //I was seeing some suspicous behaviour from the random number generator
+        //so I just want to ensure it's fully "primed"...
+        int j = 0;
+        for(int i = 1; i < 25; ++i)
+            j = i;
         
         //get list of methods that each player will run at every step
         this.playerModules = Config.playerModulesToRun;
@@ -242,7 +268,8 @@ public class Population extends SimState
         this.players = new ArrayList<>();
         int[][] matrix;
         Player p;
-        schedule.scheduleRepeating(new Observer(), 1, 1);
+        obs = new Observer(this);
+        schedule.scheduleRepeating(obs, 1, 1);
         schedule.scheduleRepeating(new Janitor(), 1, 1);
         while(i++ < numPlayers)
         {
@@ -256,7 +283,8 @@ public class Population extends SimState
             
             //run setup modules
             for(Pair<Module, Method> pair: Config.playerSetupModules.values()){
-                p.runModule(pair);
+                //p.runModule(pair);
+                pair.getFirst().setup(this, p);
             }
             
         }
@@ -267,6 +295,13 @@ public class Population extends SimState
             this.env.runModule(env_modules);
         }
     }
+    
+    @Override
+    public void finish(){
+        super.finish();
+        obs.closeWriter();
+    }
+    
     public Population(long seed)
     {
         super(seed);

@@ -10,6 +10,16 @@ import sim.field.grid.SparseGrid2D;
 import sim.field.grid.ObjectGrid2D;
 import sim.util.*;
 
+/**
+ * Class for Agents that play the Prisoner's Dilemma game. There are various methods
+ * for controlling things such as movement, reproduction, finding an opponent that
+ * hasn't yet played, death, etc.
+ * The step() method is what is executed at each iteration of the simulation.
+ * Every agent runs step() once per game iteration, this causes each agent to try
+ * to play a game, move, reproduce, modify its energy level, and die etc..
+ * -BA
+ * change
+ */
 public class Agent implements Steppable{
 	public int xdir;
 	public int ydir;
@@ -18,6 +28,11 @@ public class Agent implements Steppable{
 	public boolean walk;
 	public double mixed_p;
 
+        /**
+         * type contains the move the agent plays (cooperator or defector) in the
+         * x coordinate and whether the agent walks away after playing or not in
+         * the y-variable.
+         */
 	public Int2D type;
 	public boolean played;
 	public Int2D loc;
@@ -581,10 +596,22 @@ public class Agent implements Steppable{
 
 
 
-
+        
 	/*********************************************************************************************************
 	 * 					Step Method
 	 ***********************************************************************************************************/
+        /**
+         * This is what happens for each agent at each iteration of a simulation.
+         * In order, agents will:
+         * -check if they should die (random chance or energy is too low)
+         * -play a game against one or all opponents as specified by the user
+         * -reproduce if it has sufficient energy
+         * -take an energy deduction as the cost of living
+         * -move if it did not get to play a game yet
+         * -if aktipis death is on (off by default) check if some energy should be
+         * removed from a random agent.
+         * @param state 
+         */
 	public void step(SimState state){
 		final AgentsSimulation as = (AgentsSimulation)state;
 
@@ -600,25 +627,25 @@ public class Agent implements Steppable{
 				playPDWithAll(as);
 			else if(as.multipleInteractions || !this.played)
 				playPD(as);
-
+                        
 			//reproduce
 			final double reproduceEnergy = as.reproduceEnergy;
 			if(energy >= reproduceEnergy)
 				reproduce(as);
-
+                        
 			//energy loss
 			final double energyLoss = as.energyLoss;
 			this.energy -= energyLoss;
 			final double maxEnergy = as.maxEnergy;
 			if(energy > maxEnergy)
 				this.energy = maxEnergy;
-
+                        
 			//move probabilistically
 			//NOTE: ObjectGrid2D can only hold one object per location, so occupySameSpace doesn't work. 
 			if(!this.played || this.walk)
 				moveProbabilistically(as);
 		}
-
+                
 		final boolean aktipisDeath = as.aktipisDeath;
 		if(aktipisDeath){
 			final Bag agents = as.allAgents;

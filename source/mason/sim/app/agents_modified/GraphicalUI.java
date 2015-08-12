@@ -10,6 +10,13 @@ import javax.swing.*;
 import agents.states.SimStateWithSimController;
 import sim.util.*;
 
+
+/**
+ * This class controls all of the GUI for the simulation. Run the main method of 
+ * this class to run the simulation with a GUI. Nothing relevant to the actual
+ * simulation is located in this class however.
+ * -BA
+ */
 public class GraphicalUI extends GUIState{
 	public Display2D display; 
     public JFrame displayFrame;
@@ -46,6 +53,10 @@ public class GraphicalUI extends GUIState{
     	}
     }
     
+    /**
+     * Sets up initial windows for the display and for changing model parameters.
+     * @param c 
+     */
     public void init(Controller c){
         super.init(c);  
         display = new Display2D(500,500,this,1); 

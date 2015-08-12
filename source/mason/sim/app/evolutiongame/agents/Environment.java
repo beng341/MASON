@@ -166,7 +166,8 @@ public class Environment implements Steppable{
         //grid(i,j)) = gridMapping[grid.length*i + j]       ?
         for(i = 0; i < gridMapping.length; ++i){
             if(gridMapping[i] != null){
-                grid.addObjectToLocation(gridMapping[i], i/grid.getWidth(), i%grid.getWidth());
+                grid.addObjectToLocation(gridMapping[i], i%grid.getWidth(), i/grid.getWidth());
+                gridMapping[i].storeVariable("location", new Pair(i%grid.getWidth(), i/grid.getWidth()));
             }
         }
     }

@@ -28,11 +28,21 @@ public class EnergyFromPayoff extends PlayerModule {
         }
     }
     
+    ArrayList<ArrayList<String>> data;
     @Override
     public Object trackStatistics(){
-        String toReturn =  "Energy Given: " + amountGiven;
+        if(null == data)
+            data = new ArrayList<>();
+        else
+            data.clear();
+        data.add(new ArrayList<>());
+        data.add(new ArrayList<>());
+        
+        data.get(0).add("Energy Given");
+        data.get(1).add(""+amountGiven);
         amountGiven = 0;
-        return toReturn;
+        
+        return data;
     }
 
 }

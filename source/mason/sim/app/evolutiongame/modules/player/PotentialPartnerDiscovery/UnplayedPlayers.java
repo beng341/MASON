@@ -34,7 +34,7 @@ public class UnplayedPlayers extends PotentialPartnerDiscovery {
             {
                 Map.Entry<Integer, Player> entry = it.next();
                 if(state.getPlayer(entry.getKey()) != null
-                        && ((Double)state.getPlayer(entry.getKey()).getVariable("last_played")) == state.schedule.getTime()
+                        && ((Long)state.getPlayer(entry.getKey()).getVariable("last_played")) == state.schedule.getSteps()
                         && state.getPlayer(entry.getKey()).hasVariable("payoff")){
                     it.remove();
                 }

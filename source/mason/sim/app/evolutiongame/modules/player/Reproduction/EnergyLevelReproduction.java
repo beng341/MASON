@@ -7,7 +7,6 @@ import sim.app.evolutiongame.Util;
 import sim.app.evolutiongame.Util.Pair;
 import sim.app.evolutiongame.agents.Player;
 import sim.app.evolutiongame.modules.player.PlayerModule;
-import sim.field.grid.DenseGrid2D;
 
 /**
  * A Module initially designed for replicating Smaldino's work. If the player has
@@ -28,7 +27,7 @@ public class EnergyLevelReproduction extends PlayerModule{
         HashMap<String, Object> arguments = super.getArguments(args);
         double energy = (double) arguments.get("energy");
         
-        if(energy > 100){
+        if(energy > 100 && state.getPlayers().size() < state.getMaxPlayers()){
             Pair<Integer, Integer> location = findRandomEmptyNeighbourCell(state, p);
             if(null != location){
                 Player child = new Player(p, state);
@@ -39,15 +38,27 @@ public class EnergyLevelReproduction extends PlayerModule{
                 child.storeVariable("energy", 50.0);
                 p.storeVariable("energy", energy-50.0);
                 birthCount++;
+            } else {
+                //System.err.println("No spot to place a child player in.");
             }
         }
     }
     
+    ArrayList<ArrayList<String>> data;
     @Override
     public Object trackStatistics(){
-        String toReturn =  "Births: " + birthCount;
+        if(null == data)
+            data = new ArrayList<>();
+        else
+            data.clear();
+        data.add(new ArrayList<>());
+        data.add(new ArrayList<>());
+        
+        data.get(0).add("Births");
+        data.get(1).add(""+birthCount);
         birthCount = 0;
-        return toReturn;
+        
+        return data;
     }
     
     public Pair<Integer, Integer> findRandomEmptyNeighbourCell(Population pop, Player p){

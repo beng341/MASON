@@ -21,19 +21,7 @@ import sim.portrayal.grid.ObjectGridPortrayal2D;
 import sim.util.Bag;
 import sim.util.Int2D;
 
-/**
- * Main class for the entire simulation model. This class is the base "world" that
- * holds all data that should be global to the simulation such as lists of Agent's
- * playing the game.
- * The majority of the global variables here are parameters for the model. They
- * are associated with getX(), setX(), and optionally domX() methods. domX() would
- * return a String array of possible values for the variable x.
- * start() is executed when the user presses the play button in the console (or
- * when they run main() in this class when not using a GUI). It sets up agent positions
- * and schedules each Agent to continue running its step() method until the simulation
- * is finished.
- * -BA
- */
+
 public class AgentsSimulation extends SimStateWithSimController { //extend the class SimState
 	
 	public ObjectGrid2D agentsSpace;
@@ -270,7 +258,7 @@ public class AgentsSimulation extends SimStateWithSimController { //extend the c
     	}
     }
     public Object dommoveProb() 
-    {
+    { 
     return new String[] { "Speedster", "Zigzag", "Brownian", "FLR", "Sidestep",
     					"von Neumann", "Close-To-Home", "Cyclone", "Tail Chaser"};
     }
@@ -339,7 +327,7 @@ public class AgentsSimulation extends SimStateWithSimController { //extend the c
 	   while(i < n){
 	    	int x = random.nextInt(gridWidth - 1) + 1; 
 	   	 	int y = random.nextInt(gridHeight - 1) + 1; 
-	   	 	if (locationOK(x, y)){
+	   	 	if (locationOK(x, y)){	 
 	   	 		Int2D dir = null;
 	   	 		if(mooreNeighborhood)
 	   	 			dir = randomMovement[random.nextInt(8)];
@@ -402,7 +390,7 @@ public class AgentsSimulation extends SimStateWithSimController { //extend the c
 	              }
 	          if(test)
 	          break; //stop the for j loop
-	      }
+	      }	
 	}
 	
 	public void initProbMovement(){
@@ -490,10 +478,12 @@ public class AgentsSimulation extends SimStateWithSimController { //extend the c
 	    placeAgents();
 	    //System.out.println("There should be " + allAgents.numObjs + " agents.");
 	}
-        
+
 	public static void main(String[] args) {
 		doLoop(AgentsSimulation.class, args); //doLoop is a static method 
 		//already defined in SimState
 		System.exit(0);//Stop the program when finished.
 	}
+
+
 }

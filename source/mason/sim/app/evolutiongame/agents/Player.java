@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.naming.OperationNotSupportedException;
 import sim.app.evolutiongame.Population;
 import sim.app.evolutiongame.Util;
 import sim.app.evolutiongame.modules.Module;
@@ -90,7 +91,7 @@ public class Player implements Steppable
     private void initializeConstantVariables()
     {
         this.storeVariable("payoff_matrix", this.payoffMatrix);
-        this.storeVariable("last_played", -1.0);
+        this.storeVariable("last_played", -1l);
     }
     
     /**
@@ -193,8 +194,10 @@ public class Player implements Steppable
             }
         }
         
-        
         if(runModule) {
+//            try {
+//                module.getFirst().run(pop, this);
+//            } catch (UnsupportedOperationException ex) {}
             Method currentMethod = module.getSecond();
             this.invokeMethod(currentMethod, module.getFirst());
         }
@@ -214,6 +217,12 @@ public class Player implements Steppable
         //and to set the results it should.
         for(Map.Entry<String, Util.Pair<Module, Method>> entry: pop.playerModules.entrySet()){
             this.runModule(entry.getValue());
+            
+            
+            //this should work if I make sure all variables exist
+//            try {
+//                entry.getValue().getFirst().run(pop, this);
+//            } catch (UnsupportedOperationException ex) {}
         }
         
     }
@@ -222,6 +231,9 @@ public class Player implements Steppable
     
     public String toString()
     {
+        if(this.hasVariable("strategy")){
+            return "Player " + this.id + " - Strategy: " + this.getVariable("strategy");
+        }
         return "Player " + this.id;
     }
 }
