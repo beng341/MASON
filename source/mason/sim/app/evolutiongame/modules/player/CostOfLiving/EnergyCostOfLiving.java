@@ -14,7 +14,7 @@ import sim.app.evolutiongame.modules.player.PlayerModule;
  */
 public class EnergyCostOfLiving extends PlayerModule {
 
-    private static final double cost = 1.5;
+    private static final double cost = 0.5;
     private double energyRemoved = 0;
     
     @Override
