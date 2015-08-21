@@ -25,10 +25,10 @@ public class Death extends PlayerModule{
     @Override
     public void run(Population state, Player p)
     {
-        if(state.random.nextDouble() <= (p.deathRate)){
-            p.die();
-            numberOfDeaths++;
-        }
+//        if(state.random.nextDouble() <= (p.deathRate)){
+//            p.die();
+//            numberOfDeaths++;
+//        }
     }
     
     @Override

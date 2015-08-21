@@ -22,8 +22,7 @@ public class PopulationWithUI extends GUIState {
 
     public Display2D display;
     public JFrame displayFrame;
-    ContinuousPortrayal2D fieldPortrayal = new ContinuousPortrayal2D();
-    DenseGridPortrayal2D gridPortrayal = new DenseGridPortrayal2D();
+    public DenseGridPortrayal2D gridPortrayal = new DenseGridPortrayal2D();
     
     
     public PopulationWithUI(SimState state){
@@ -69,12 +68,15 @@ public class PopulationWithUI extends GUIState {
         
         //set player color, if strategy is out of bounds add new random colours.
         for(Player p: pop.getPlayers()){
-            while((int)p.getVariable("strategy") >= colors.size())
-            {
-                colors.add(new Color(pop.random.nextFloat(), pop.random.nextFloat(), pop.random.nextFloat()));
+            if(p.hasVariable("strategy")){
+                while((int)p.getVariable("strategy") >= colors.size())
+                {
+                    colors.add(new Color(pop.random.nextFloat(), pop.random.nextFloat(), pop.random.nextFloat()));
+                }
+                Color c = colors.get((int)p.getVariable("strategy"));
+                gridPortrayal.setPortrayalForObject(p, new RectanglePortrayal2D(c));
             }
-            Color c = colors.get((int)p.getVariable("strategy"));
-            gridPortrayal.setPortrayalForObject(p, new RectanglePortrayal2D(c));
+            
         }
         
         //fieldPortrayal.setField(pop.field);

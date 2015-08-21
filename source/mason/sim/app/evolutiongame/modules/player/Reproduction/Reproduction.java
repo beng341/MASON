@@ -26,16 +26,16 @@ public class Reproduction extends PlayerModule {
     {
         this.p = p;
         //1 - get arguments
-        HashMap<String, Object> arguments = getArguments(args);
-        if(null == arguments) {
-            return;
-        }
-        int payoff = (int) arguments.get("payoff"); 
-        
-        if(state.random.nextDouble() <= (p.birthRate+p.birthRateModifier*payoff)){
-            state.addPlayer(new Player(p, state));
-            numberOfBirths++;
-        }
+//        HashMap<String, Object> arguments = getArguments(args);
+//        if(null == arguments) {
+//            return;
+//        }
+//        int payoff = (int) arguments.get("payoff"); 
+//        
+//        if(state.random.nextDouble() <= (p.birthRate+p.birthRateModifier*payoff)){
+//            state.addPlayer(new Player(p, state));
+//            numberOfBirths++;
+//        }
     }
     
     @Override

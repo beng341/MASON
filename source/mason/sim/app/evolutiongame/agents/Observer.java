@@ -174,7 +174,8 @@ public class Observer implements Steppable {
     public void closeWriter(){
         try
         {
-            writer.close();
+            if(null != writer)
+                writer.close();
         } catch (IOException ex)
         {
             Logger.getLogger(Observer.class.getName()).log(Level.SEVERE, null, ex);

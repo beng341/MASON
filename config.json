@@ -18,14 +18,18 @@
           "payoff_matrix"
         ]
       },
+      "Congestion": {
+        "Implementations": [
+          "LifeOrDeathCongestion"
+        ],
+        "Arguments": []
+      },
       "Death": {
         "Implementations": [
           "Death",
           "EnergyDeath"
         ],
-        "Arguments": [
-          "payoff"
-        ]
+        "Arguments": []
       },
       "PlayGame": {
         "Implementations": [
@@ -35,6 +39,12 @@
           "opponent",
           "payoff_matrix"
         ]
+      },
+      "CostOfLiving": {
+        "Implementations": [
+          "EnergyCostOfLiving"
+        ],
+        "Arguments": []
       },
       "Movement": {
         "Implementations": [
@@ -47,7 +57,8 @@
       },
       "UsePayoff": {
         "Implementations": [
-          "EnergyFromPayoff"
+          "EnergyFromPayoff",
+          "UsePayoff"
         ],
         "Arguments": [
           "payoff"
@@ -75,12 +86,6 @@
         "Arguments": [
           "payoff"
         ]
-      },
-      "CostOfLiving": {
-        "Implementations": [
-          "EnergyCostOfLiving"
-        ],
-        "Arguments": []
       }
     },
     "environment": {
@@ -111,13 +116,7 @@
   },
   "Modules To Run (Ordered)": {
     "player": {
-      "FindOpponents": "RandomNeighbour",
-      "PlayGame": "PlayGame",
-      "UsePayoff": "EnergyFromPayoff",
-      "Reproduction": "EnergyLevelReproduction",
-      "Movement": "RandomEmptyNeighbourCell",
-      "CostOfLiving": "EnergyCostOfLiving",
-      "Death": "EnergyDeath"
+      "Congestion": "LifeOrDeathCongestion"
     },
     "environment": {
     }
@@ -126,12 +125,14 @@
     "player": {
       "FindOpponents": "FindOpponents",
       "FindStrategy": "FindStrategy",
+      "Congestion": "LifeOrDeathCongestion",
       "Death": "Death",
       "PlayGame": "PlayGame",
+      "CostOfLiving": "EnergyCostOfLiving",
       "Movement": "Movement",
+      "UsePayoff": "UsePayoff",
       "SetupStrategyRatios": "EqualCounts",
       "PotentialPartnerDiscovery": "PotentialPartnerDiscovery",
-      "CostOfLiving": "EnergyCostOfLiving",
       "Reproduction": "Reproduction"
     },
     "environment": {
@@ -142,6 +143,7 @@
   },
   "Setup Modules": {
     "player": {
+      "Congestion": "LifeOrDeathCongestion",
       "SetupStrategyRatios": "EqualCounts"
     },
     "environment": {

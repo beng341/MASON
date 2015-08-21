@@ -62,37 +62,17 @@ public class Population extends SimState
     /***************************************************************************
     * Variables for simulation parameters:
     ***************************************************************************/
-    /**
-     * The base percentage of an agent reproducing after playing a game.
-     */
-    double birthRate = 0.40;
-    /**
-     * Modifies the birth rate based off of payoff the agent received after the game.
-     * Chance of reproduction = birthRate + payOff * birthRateModifier.
-     */
-    double birthRateModifier = 0.1;
-    /**
-     * Chance that an agent will die after playing a game. Death occurs after
-     * reproduction.
-     */
-    double deathRate = 0.50;
     
     /**
      * True if data should be printed to the console at each step.
      */
     boolean printData = true;
-    boolean saveData = true;
+    boolean saveData = false;
     
     long numPlayers = 1000;//should probably have at least 1000 for anything useful
     long maxPlayers = 5000;
     private long gridHeight = 100;
     private long gridWidth = 100;
-    
-    int strategyDistribution = RANDOMCHOICES;
-    /** Choose this to have agents that randomly choose a strategy */
-    public static int RANDOMCHOICES = 0;
-    /** Choose this to have agents that are assigned a random strategy that will not change */
-    public static int RANDOMAGENTS = 1;
     
     int gameNumber = PrisonersDilemma;
     /** Game numbers that correspond to payoff matrices found in PayoffMatrices */
@@ -111,10 +91,10 @@ public class Population extends SimState
     }
     
     public boolean getSaveData(){
-        return this.printData;
+        return this.saveData;
     }
-    public void setSaveData(boolean print){
-        this.printData = print;
+    public void setSaveData(boolean save){
+        this.saveData = save;
     }
     
     /*
@@ -159,55 +139,6 @@ public class Population extends SimState
     public Object domGridHeight(){
         return new sim.util.Interval(0, 500);
     }
-    /*
-     * Methods to let user modify birth rate of all players.
-     */
-    public double getBirthRate(){
-        return this.birthRate;
-    }
-    public void setBirthRate(double rate){
-        this.birthRate = rate;
-    }
-    public Object domBirthRate(){
-        return new sim.util.Interval(0.0, 1.0);
-    }
-    /*
-     * Methods to let user modify birth rate of all players.
-     */
-    public double getBirthRateModifier(){
-        return this.birthRateModifier;
-    }
-    public void setBirthRateModifier(double rate){
-        this.birthRateModifier = rate;
-    }
-    public Object domBirthRateModifier(){
-        return new sim.util.Interval(0.0, 1.0);
-    }
-    /*
-     * Methods to let user modify birth rate of all players.
-     */
-    public double getDeathRate(){
-        return this.deathRate;
-    }
-    public void setDeathRate(double rate){
-        this.deathRate = rate;
-    }
-    public Object domDeathRate(){
-        return new sim.util.Interval(0.0, 1.0);
-    }
-    /*
-     * Methods to let user decide player strategies.
-     */
-    public int getStrategyDistribution(){
-        return this.strategyDistribution;
-    }
-    public void setStrategyDistribution(int strat){
-        this.strategyDistribution = strat;
-    }
-    public Object domStrategyDistribution(){
-        return new String[]{"Random Actions", "Fixed Actions"};
-    }
-    
     /*
      * Methods to let user decide what game will be played.
      */

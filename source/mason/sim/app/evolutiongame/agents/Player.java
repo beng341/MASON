@@ -33,11 +33,6 @@ public class Player implements Steppable
     
     private HashMap<String, Object> variables;
     
-    
-    public double birthRate;
-    public double birthRateModifier;
-    public double deathRate;
-    
     /**
      * This is what is returned when the agent is put on the schedule.
      * Call stoppable.stop() to remove this agent from the schedule.
@@ -207,9 +202,6 @@ public class Player implements Steppable
     public void step(SimState state){
         
         pop = (Population)state;
-        this.birthRate = pop.getBirthRate();
-        this.birthRateModifier = pop.getBirthRateModifier();
-        this.deathRate = pop.getDeathRate();
         
         //Iterate over each module, in the order that is specified. Run each
         //module only after checking that the proper variables all exist.

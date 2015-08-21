@@ -116,7 +116,8 @@
       "UsePayoff": "EnergyFromPayoff",
       "Reproduction": "EnergyLevelReproduction",
       "Movement": "RandomEmptyNeighbourCell",
-      "Death": "EnergyDeath"
+      "Death": "EnergyDeath",
+      "CostOfLiving": "EnergyCostOfLiving"
     },
     "environment": {
     }

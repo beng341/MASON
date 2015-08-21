@@ -3,9 +3,7 @@ package sim.app.evolutiongame.modules.player.CostOfLiving;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import sim.app.evolutiongame.Population;
-import sim.app.evolutiongame.agents.Environment;
 import sim.app.evolutiongame.agents.Player;
-import sim.app.evolutiongame.modules.environment.EnvironmentModule;
 import sim.app.evolutiongame.modules.player.PlayerModule;
 
 /**
