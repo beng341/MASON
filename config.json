@@ -116,34 +116,32 @@
   },
   "Modules To Run (Ordered)": {
     "player": {
-      "Congestion": "LifeOrDeathCongestion"
+      "FindOpponents": "RandomNeighbour",
+      "PlayGame": "PlayGame",
+      "UsePayoff": "EnergyFromPayoff",
+      "Reproduction": "EnergyLevelReproduction",
+      "Movement": "RandomEmptyNeighbourCell",
+      "Death": "EnergyDeath",
+      "CostOfLiving": "EnergyCostOfLiving"
     },
     "environment": {
     }
   },
   "Preferred Implementations": {
     "player": {
-      "FindOpponents": "FindOpponents",
-      "FindStrategy": "FindStrategy",
-      "Congestion": "LifeOrDeathCongestion",
-      "Death": "Death",
+      "FindOpponents": "RandomNeighbour",
       "PlayGame": "PlayGame",
-      "CostOfLiving": "EnergyCostOfLiving",
-      "Movement": "Movement",
-      "UsePayoff": "UsePayoff",
-      "SetupStrategyRatios": "EqualCounts",
-      "PotentialPartnerDiscovery": "PotentialPartnerDiscovery",
-      "Reproduction": "Reproduction"
+      "UsePayoff": "EnergyFromPayoff",
+      "Reproduction": "EnergyLevelReproduction",
+      "Movement": "RandomEmptyNeighbourCell",
+      "Death": "EnergyDeath",
+      "CostOfLiving": "EnergyCostOfLiving"
     },
     "environment": {
-      "RandomDeath": "RandomDeath",
-      "MovePlayers": "MovePlayers",
-      "PlacePlayers": "RandomOverlapping"
     }
   },
   "Setup Modules": {
     "player": {
-      "Congestion": "LifeOrDeathCongestion",
       "SetupStrategyRatios": "EqualCounts"
     },
     "environment": {

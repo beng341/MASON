@@ -80,11 +80,23 @@ public class Observer implements Steppable {
             
             columnNames.add("# Players");
             columnData.put("# Players", new ArrayList<>());
+            
+            //add arraylists for keeping track of number of players of each strategy
+            for(int strat = 0; strat < strategyCounts.length; ++strat){
+                columnNames.add("Strategy " + strat);
+                columnData.put("Strategy " + strat, new ArrayList<>());
+            }
+        }
+        
+        for(int strat = 0; strat < strategyCounts.length; ++strat){
+            columnData.get("Strategy " + strat).add(strategyCounts[strat]+"");
         }
         
         //Update time and population columns in stored data
         columnData.get("Time").add(new DecimalFormat("#.#").format(state.schedule.getTime()));
         columnData.get("# Players").add(pop.getPlayers().size() + "");
+        
+        
         
         //Run trackStatistics methods and record all the results
         for(Map.Entry<String, Util.Pair<Module, Method>> entry: Config.statisticsMethods.entrySet()){
