@@ -168,11 +168,18 @@ public class Population extends SimState
     public void start()
     {
         super.start();
-        //I was seeing some suspicous behaviour from the random number generator
-        //so I just want to ensure it's fully "primed"...
-        int j = 0;
-        for(int i = 1; i < 25; ++i)
-            j = i;
+        
+        
+        //Do something like
+        //Config.loadModules();
+        //to load in all the constants referred to below.
+        //This allows for moving all the final variables into a method and having
+        //a loop to read in any number of player types
+        
+        
+        
+        
+        
         
         //get list of methods that each player will run at every step
         this.playerModules = Config.playerModulesToRun;
@@ -181,6 +188,9 @@ public class Population extends SimState
         
         LinkedHashMap<String, String[]> args = Config.playerArguments;
         
+        //set up variables that Players and the Environment must have before running.
+        //These are the variables listed in the "Arguments" section of each Module
+        //that the Player/Environment is running
         this.requiredPlayerVariables = new LinkedHashMap<>();
         for(Map.Entry<String, Util.Pair<Module, Method>> entry: this.playerModules.entrySet()){
             this.requiredPlayerVariables.put(entry.getValue().getFirst(), args.get(entry.getKey()));
@@ -194,32 +204,36 @@ public class Population extends SimState
         
         PayoffMatrices.setGame(gameNumber);
         
+        
+        //create and schedule the Observer agent
+        obs = new Observer(this);
+        schedule.scheduleRepeating(obs, 1, 1);
+        
+        //create and schedule the Janitor agent
+        schedule.scheduleRepeating(new Janitor(), 1, 1);
+        
+        //create/schedule all of the Players.
         int i = 0;
         this.playerMap = new HashMap<>();
         this.players = new ArrayList<>();
         int[][] matrix;
         Player p;
-        obs = new Observer(this);
-        schedule.scheduleRepeating(obs, 1, 1);
-        schedule.scheduleRepeating(new Janitor(), 1, 1);
         while(i++ < numPlayers)
         {
             //initializes a player to a random strategy and schedule it
             matrix = PayoffMatrices.getPayoffMatrix(random.nextBoolean());
             p = new Player(matrix, this);
             
-            playerMap.put(p.id, p);
-            players.add(p);
-            p.setStoppable(schedule.scheduleRepeating(p));
+            addPlayer(p);   //schedule and store p in the playerMap
             
             //run setup modules
             for(Pair<Module, Method> pair: Config.playerSetupModules.values()){
                 //p.runModule(pair);
                 pair.getFirst().setup(this, p);
             }
-            
         }
-        //must set up after adding players to population
+        
+        //must set up environment after adding players to population
         this.env = new Environment(this);
         schedule.scheduleRepeating(env);
         for(Pair<Module, Method> env_modules: Config.environmentSetupModules.values()){
@@ -230,7 +244,7 @@ public class Population extends SimState
     @Override
     public void finish(){
         super.finish();
-        obs.closeWriter();
+        obs.closeWriter();  //close the Observer's FileWriter
     }
     
     public Population(long seed)
