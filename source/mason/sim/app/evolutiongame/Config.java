@@ -48,11 +48,6 @@ public class Config {
     public static final String ALL_MODULES = "All Modules";
     public static LinkedHashMap<String, LinkedHashMap<String, ArrayList<String>>> moduleImplementations = findModuleImplementations();
     
-    /**
-     * The names of modules and module implementations that will be run on each
-     * player, in the order that they will be run.
-     */
-    public static final String MODULES_TO_RUN = "Modules To Run (Ordered)";
     public static LinkedHashMap<String, String> playerDefaults = 
             getDefaultImplementations(moduleImplementations.get("player"));
     public static LinkedHashMap<String, String> environmentDefaults = 
@@ -71,9 +66,16 @@ public class Config {
     
     private static final HashMap<String, Object> configElements = readConfigFile();
     
-    public static final LinkedHashMap<String, Pair<Module, Method>> 
-            playerModulesToRun = configElements.isEmpty() ? null: Config.getRunMethods(
-                    ((LinkedTreeMap<String, LinkedTreeMap<String, String>>)configElements.get(Config.MODULES_TO_RUN)).get("player"), "player");
+    /**
+     * The names of modules and module implementations that will be run on each
+     * player, in the order that they will be run.
+     */
+    public static final String MODULES_TO_RUN = "Modules To Run (Ordered)";
+    
+    //This currently is a map: player type -> (module name -> (module class, module run method))
+    public static final LinkedHashMap<String, LinkedHashMap<String, Pair<Module, Method>>> 
+            playerModulesToRun = configElements.isEmpty() ? null: Config.getPlayerRunMethods(
+                    (LinkedTreeMap<String, LinkedTreeMap<String, String>>)configElements.get(Config.MODULES_TO_RUN));
     
     public static final LinkedHashMap<String, Pair<Module, Method>> 
             environmentModulesToRun = configElements.isEmpty() ? null: 
@@ -104,6 +106,10 @@ public class Config {
     public static final LinkedHashMap<String, Pair<Module, Method>> 
             cleanupMethods = configElements.isEmpty() ? null: getCleanUpMethods(playerModulesToRun);
     
+    public static final LinkedTreeMap<String, String> 
+//            simParamaters = configElements.isEmpty() ? null : getSimulationParameters((LinkedTreeMap<String, String>)configElements.get("Simulation Parameters"));
+            simParamaters = configElements.isEmpty() ? null : (LinkedTreeMap<String, String>)configElements.get("Simulation Parameters");
+    
     public static void loadModules(){
         
     }
@@ -119,8 +125,6 @@ public class Config {
      * implementation. 
      */
     public static void generateConfigFile() {
-        
-        
         //generate modules to run section with subsections for player and environment
         LinkedHashMap<String, LinkedHashMap<String, String>> toRun = new LinkedHashMap<>();
         toRun.put("player", playerDefaults);
@@ -280,6 +284,17 @@ public class Config {
         return configElements;
     }
     
+    public static LinkedHashMap<String, LinkedHashMap<String, Pair<Module, Method>>> getPlayerRunMethods(LinkedTreeMap<String, LinkedTreeMap<String, String>> modules){
+        
+        LinkedHashMap<String, LinkedHashMap<String, Pair<Module, Method>>> playerModules = new LinkedHashMap<>();
+        
+        for(String s: modules.keySet()){
+            playerModules.put(s, Config.getRunMethods(modules.get(s), "player"));
+        }
+        
+        return playerModules;
+    }
+    
 
     /**
      * Generates a list of all methods that should be run for each player in
@@ -336,44 +351,50 @@ public class Config {
         return methods;
     }
     
-    public static LinkedHashMap<String, Pair<Module, Method>> getStatisticsMethods(LinkedHashMap<String, Pair<Module, Method>> modules) {
+    public static LinkedHashMap<String, Pair<Module, Method>> getStatisticsMethods(LinkedHashMap<String, LinkedHashMap<String, Pair<Module, Method>>> modules) {
         
-        LinkedHashMap<String, Pair<Module, Method>> result = (LinkedHashMap<String, Pair<Module, Method>>) modules.clone();
+        LinkedHashMap<String, Pair<Module, Method>> result = new LinkedHashMap<String, Pair<Module, Method>>();
         
-        for(String module: modules.keySet()) {
-            Class c = result.get(module).getFirst().getClass();
-            
-            Method m;
-            try {
-                m = c.getMethod("trackStatistics");
-                result.put(module, new Pair<>(result.get(module).getFirst(), m));
-            } catch (NoSuchMethodException ex){
-                //System.out.println("No run() method found in " + c.toString());
-            } catch(SecurityException ex) {
-                Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+        for(String s: modules.keySet()){
+            for(String module: modules.get(s).keySet()) {
+                Class c = result.get(module).getFirst().getClass();
+
+                Method m;
+                try {
+                    m = c.getMethod("trackStatistics", Population.class);
+                    result.put(module, new Pair<>(result.get(module).getFirst(), m));
+                } catch (NoSuchMethodException ex){
+                    //System.out.println("No run() method found in " + c.toString());
+                } catch(SecurityException ex) {
+                    Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
+        
         
         return result;
     }
     
-    public static LinkedHashMap<String, Pair<Module, Method>> getCleanUpMethods(LinkedHashMap<String, Pair<Module, Method>> modules) {
+    public static LinkedHashMap<String, Pair<Module, Method>> getCleanUpMethods(LinkedHashMap<String, LinkedHashMap<String, Pair<Module, Method>>> modules) {
         
-        LinkedHashMap<String, Pair<Module, Method>> result = (LinkedHashMap<String, Pair<Module, Method>>) modules.clone();
+        LinkedHashMap<String, Pair<Module, Method>> result = new LinkedHashMap<String, Pair<Module, Method>>();
         
-        for(String module: modules.keySet()) {
-            Class c = result.get(module).getFirst().getClass();
-            
-            Method m;
-            try {
-                m = c.getMethod("cleanUp", Population.class);
-                result.put(module, new Pair<>(result.get(module).getFirst(), m));
-            } catch (NoSuchMethodException ex){
-                //System.out.println("No run() method found in " + c.toString());
-            } catch(SecurityException ex) {
-                Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+        for(String s: modules.keySet()){
+            for(String module: modules.get(s).keySet()) {
+                Class c = result.get(module).getFirst().getClass();
+
+                Method m;
+                try {
+                    m = c.getMethod("cleanUp", Population.class);
+                    result.put(module, new Pair<>(result.get(module).getFirst(), m));
+                } catch (NoSuchMethodException ex){
+                    //System.out.println("No run() method found in " + c.toString());
+                } catch(SecurityException ex) {
+                    Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
+        
         
         return result;
     }
@@ -507,5 +528,17 @@ public class Config {
         }
         
         return arguments;
+    }
+
+    private static LinkedHashMap<String, String> getSimulationParameters(LinkedTreeMap<String, String> params)
+    {
+        if(params == null)
+            return null;
+        
+        
+        
+        
+        
+        return null;
     }
 }

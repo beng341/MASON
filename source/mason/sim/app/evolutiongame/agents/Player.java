@@ -2,7 +2,9 @@ package sim.app.evolutiongame.agents;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,6 +34,11 @@ public class Player implements Steppable
     private Population pop;
     
     private HashMap<String, Object> variables;
+    
+    /**
+     * List of Modules this Player will do during it's step() method.
+     */
+    public LinkedHashMap<String, Util.Pair<Module, Method>> modules;
     
     /**
      * This is what is returned when the agent is put on the schedule.
@@ -207,16 +214,13 @@ public class Player implements Steppable
         //module only after checking that the proper variables all exist.
         //Each module will take care by itself to fetch the arguments it needs
         //and to set the results it should.
-        for(Map.Entry<String, Util.Pair<Module, Method>> entry: pop.playerModules.entrySet()){
+        for(Map.Entry<String, Util.Pair<Module, Method>> entry: modules.entrySet()){
             this.runModule(entry.getValue());
-            
-            
-            //this should work if I make sure all variables exist
-//            try {
-//                entry.getValue().getFirst().run(pop, this);
-//            } catch (UnsupportedOperationException ex) {}
         }
-        
+//        for(Util.Pair<Module, Method> entry: this.modules){
+//            this.runModule(entry);
+//        }
+//        
     }
     
     

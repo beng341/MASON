@@ -42,7 +42,7 @@ public class Population extends SimState
      * The name of the implementation of the module that is in use maps to the
      * actual module class and to the run method of the class.
      */
-    public LinkedHashMap<String, Util.Pair<Module, Method>> playerModules;
+    public LinkedHashMap<String, LinkedHashMap<String, Pair<Module, Method>>> playerModules;
     public LinkedHashMap<String, Util.Pair<Module, Method>> environmentModules;
     
     /**
@@ -176,11 +176,6 @@ public class Population extends SimState
         //This allows for moving all the final variables into a method and having
         //a loop to read in any number of player types
         
-        
-        
-        
-        
-        
         //get list of methods that each player will run at every step
         this.playerModules = Config.playerModulesToRun;
         this.environmentModules = Config.environmentModulesToRun;
@@ -192,9 +187,13 @@ public class Population extends SimState
         //These are the variables listed in the "Arguments" section of each Module
         //that the Player/Environment is running
         this.requiredPlayerVariables = new LinkedHashMap<>();
-        for(Map.Entry<String, Util.Pair<Module, Method>> entry: this.playerModules.entrySet()){
-            this.requiredPlayerVariables.put(entry.getValue().getFirst(), args.get(entry.getKey()));
+        
+        for(Map.Entry<String, LinkedHashMap<String, Pair<Module, Method>>> entryMap: this.playerModules.entrySet()){
+            for(Map.Entry<String, Util.Pair<Module, Method>> entry: entryMap.getValue().entrySet()){
+                this.requiredPlayerVariables.put(entry.getValue().getFirst(), args.get(entry.getKey()));
+            }
         }
+        
         
         args = Config.environmentArguments;
         this.requiredEnvironmentVariables = new LinkedHashMap<>();
@@ -218,20 +217,34 @@ public class Population extends SimState
         this.players = new ArrayList<>();
         int[][] matrix;
         Player p;
-        while(i++ < numPlayers)
-        {
-            //initializes a player to a random strategy and schedule it
-            matrix = PayoffMatrices.getPayoffMatrix(random.nextBoolean());
-            p = new Player(matrix, this);
-            
-            addPlayer(p);   //schedule and store p in the playerMap
-            
-            //run setup modules
-            for(Pair<Module, Method> pair: Config.playerSetupModules.values()){
-                //p.runModule(pair);
-                pair.getFirst().setup(this, p);
+        
+        //figure out the number of each type of player
+        HashMap<String, Integer> playerAmounts = new HashMap<>();
+        if(Config.simParamaters != null){
+            for(String playerType: Config.playerModulesToRun.keySet()){
+                playerAmounts.put(playerType, Integer.parseInt(Config.simParamaters.get(playerType)));
             }
         }
+        
+        for(String playerType: playerAmounts.keySet()){
+            i = 0;
+            while(i++ < numPlayers)
+            {
+                //initializes a player to a random strategy and schedule it
+                matrix = PayoffMatrices.getPayoffMatrix(random.nextBoolean());
+                p = new Player(matrix, this);
+                p.modules = Config.playerModulesToRun.get(playerType);
+                
+                addPlayer(p);   //schedule and store p in the playerMap
+
+                //run setup modules
+                for(Pair<Module, Method> pair: Config.playerSetupModules.values()){
+                    //p.runModule(pair);
+                    pair.getFirst().setup(this, p);
+                }
+            }
+        }
+        
         
         //must set up environment after adding players to population
         this.env = new Environment(this);
