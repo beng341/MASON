@@ -289,6 +289,9 @@ public class Config {
         LinkedHashMap<String, LinkedHashMap<String, Pair<Module, Method>>> playerModules = new LinkedHashMap<>();
         
         for(String s: modules.keySet()){
+            if(s.equals("environment")){
+                continue;
+            }
             playerModules.put(s, Config.getRunMethods(modules.get(s), "player"));
         }
         
@@ -314,7 +317,7 @@ public class Config {
             Class c = null;
             try {
                 c = Class.forName(MODULE_PACKAGE+"."+type+"."+module+"."+modules.get(module));
-
+                
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(Population.class.getName()).log(Level.SEVERE, null, ex);
             }
